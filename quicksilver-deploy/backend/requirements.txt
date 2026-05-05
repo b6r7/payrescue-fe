@@ -1,0 +1,5 @@
+fastapi[standard]==0.115.*
+uvicorn[standard]==0.34.*
+pydantic==2.10.*
+httpx==0.28.*
+# quicksilver-auth is installed from _libs_auth/ by the Dockerfile — do not add here

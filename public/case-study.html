@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Rescue — Case Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F3EE;
+    --surface: #ECEAE4;
+    --card: #FFFFFF;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.14);
+    --blue: #2563a8;
+    --blue-d: rgba(37,99,168,0.09);
+    --blue-g: rgba(37,99,168,0.05);
+    --green: #16a34a;
+    --green-d: rgba(22,163,74,0.1);
+    --red: #dc2626;
+    --red-d: rgba(220,38,38,0.08);
+    --amber: #b45309;
+    --amber-d: rgba(180,83,9,0.09);
+    --purple: #7c3aed;
+    --purple-d: rgba(124,58,237,0.09);
+    --white: #111318;
+    --muted: #64748b;
+    --dimmed: #94a3b8;
+    --serif: 'Instrument Serif', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --mono: 'Space Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    background: rgba(245,243,238,0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border2);
+    border-radius: 100px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  nav a {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    color: var(--muted);
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  nav a:hover { color: var(--white); }
+  nav .nav-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    background: var(--white);
+    color: var(--bg);
+    border-radius: 100px;
+    padding: 4px 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  section { padding: 80px 0; }
+  section:first-of-type { padding-top: 120px; }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    display: block;
+    height: 1px;
+    width: 40px;
+    background: var(--border2);
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+  h3 {
+    font-family: var(--sans);
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--white);
+  }
+  h4 {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  p { color: rgba(17,19,24,0.72); margin-bottom: 14px; }
+  p:last-child { margin-bottom: 0; }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+  .card-inner { padding: 28px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+  @media (max-width: 640px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+
+  /* HERO SNAPSHOT */
+  .snapshot-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-top: 40px;
+  }
+  .snapshot-item {
+    background: var(--card);
+    padding: 20px 18px;
+  }
+  .snapshot-item .snap-label {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dimmed);
+    margin-bottom: 8px;
+  }
+  .snapshot-item .snap-val {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--white);
+    line-height: 1.4;
+  }
+
+  /* SCREEN FRAMES */
+  .screens-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin: 32px 0;
+  }
+  .screens-row.three { grid-template-columns: repeat(3, 1fr); }
+
+  .screen-frame {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  .screen-frame img {
+    width: 100%;
+    display: block;
+  }
+  .screen-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 8px 10px 10px;
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.9);
+    background: linear-gradient(transparent, rgba(0,0,0,0.55));
+  }
+  .screen-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-family: var(--mono);
+    font-size: 7px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 100px;
+    padding: 3px 8px;
+    font-weight: 700;
+  }
+  .screen-badge.blue { background: rgba(37,99,168,0.9); color: #fff; }
+  .screen-badge.green { background: rgba(22,163,74,0.9); color: #fff; }
+  .screen-badge.amber { background: rgba(180,83,9,0.9); color: #fff; }
+
+  /* STAT BLOCKS */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 28px 0;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .stat-num {
+    font-family: var(--serif);
+    font-size: 36px;
+    font-weight: 400;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-num.blue { color: var(--blue); }
+  .stat-num.amber { color: var(--amber); }
+  .stat-num.green { color: var(--green); }
+  .stat-num.red { color: var(--red); }
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .stat-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 7px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 100px;
+    margin-bottom: 6px;
+  }
+  .stat-tag.estimated { background: var(--amber-d); color: var(--amber); }
+  .stat-tag.directional { background: var(--blue-d); color: var(--blue); }
+  .stat-tag.documented { background: var(--green-d); color: var(--green); }
+
+  /* USER JOURNEY */
+  .journey-section { margin: 28px 0; }
+  .journey-name {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .journey-track {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .j-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 90px;
+    position: relative;
+  }
+  .j-step::after {
+    content: '';
+    position: absolute;
+    top: 17px;
+    left: calc(50% + 17px);
+    width: calc(100% - 34px);
+    height: 1px;
+    background: var(--border2);
+  }
+  .j-step:last-child::after { display: none; }
+  .j-node {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 2px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+  }
+  .j-node.active { border-color: var(--blue); background: var(--blue-d); }
+  .j-node.decision { border-color: var(--amber); background: var(--amber-d); }
+  .j-node.paid { border-color: var(--green); background: var(--green-d); }
+  .j-node.blocked { border-color: var(--red); background: var(--red-d); }
+  .j-label {
+    font-size: 10px;
+    font-weight: 500;
+    text-align: center;
+    color: var(--white);
+    line-height: 1.3;
+    padding: 0 4px;
+  }
+  .j-sub {
+    font-family: var(--mono);
+    font-size: 8px;
+    color: var(--dimmed);
+    text-align: center;
+    margin-top: 3px;
+    padding: 0 4px;
+    line-height: 1.3;
+  }
+
+  /* PIPELINE FLOW */
+  .pipeline-flow { display: flex; flex-direction: column; gap: 0; }
+  .pf-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .pf-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 20px;
+    flex-shrink: 0;
+    padding-top: 3px;
+  }
+  .pf-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--blue);
+    flex-shrink: 0;
+  }
+  .pf-line {
+    width: 2px;
+    flex: 1;
+    background: var(--border2);
+    min-height: 32px;
+  }
+  .pf-row:last-child .pf-line { display: none; }
+  .pf-card {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .pf-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--dimmed);
+    min-width: 20px;
+  }
+  .pf-text {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--white);
+  }
+  .pf-sub {
+    font-size: 11px;
+    color: var(--muted);
+    display: block;
+    margin-top: 2px;
+    font-weight: 400;
+  }
+  .pf-badge {
+    font-family: var(--mono);
+    font-size: 7px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-radius: 100px;
+    padding: 3px 8px;
+    flex-shrink: 0;
+  }
+  .pf-badge.free { background: var(--green-d); color: var(--green); }
+  .pf-badge.llm { background: var(--purple-d); color: var(--purple); }
+  .pf-badge.db { background: var(--amber-d); color: var(--amber); }
+  .pf-badge.server { background: var(--blue-d); color: var(--blue); }
+  .pf-badge.red { background: var(--red-d); color: var(--red); }
+
+  /* DECISION TREE */
+  .dtree { display: flex; flex-direction: column; align-items: stretch; gap: 0; }
+  .dt-row {
+    display: flex;
+    justify-content: space-around;
+    gap: 12px;
+    position: relative;
+    padding: 8px 0;
+  }
+  .dt-connector {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 16px;
+    background: var(--border2);
+  }
+  .dt-connector-split {
+    position: absolute;
+    top: 0;
+    left: 25%;
+    right: 25%;
+    height: 1px;
+    background: var(--border2);
+  }
+  .dt-connector-split::before,
+  .dt-connector-split::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 1px;
+    height: 16px;
+    background: var(--border2);
+  }
+  .dt-connector-split::before { left: 0; }
+  .dt-connector-split::after { right: 0; }
+  .dt-node {
+    background: var(--card);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--white);
+    text-align: center;
+    min-width: 100px;
+    flex: 1;
+    max-width: 180px;
+    line-height: 1.4;
+  }
+  .dt-node.root {
+    background: var(--white);
+    color: var(--bg);
+    border-color: var(--white);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    max-width: 260px;
+    flex: none;
+  }
+  .dt-node.end-a { border-color: var(--blue); background: var(--blue-d); color: var(--blue); }
+  .dt-node.end-g { border-color: var(--green); background: var(--green-d); color: var(--green); }
+  .dt-node.end-r { border-color: var(--red); background: var(--red-d); color: var(--red); }
+  .dt-node.decision { border-color: var(--amber); background: var(--amber-d); }
+  .dt-label {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--dimmed);
+    text-align: center;
+    padding: 2px 0;
+  }
+
+  /* SCORE VIZ */
+  .score-bar-wrap { margin: 16px 0; }
+  .score-bar-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 12px;
+  }
+  .score-bar-label span:first-child { font-weight: 500; }
+  .score-bar-label span:last-child { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  .score-bar-track {
+    height: 8px;
+    background: var(--surface);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 0.8s ease;
+  }
+  .score-bar-fill.low { background: var(--green); }
+  .score-bar-fill.med { background: var(--amber); }
+  .score-bar-fill.high { background: var(--red); }
+
+  .tier-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+  }
+  .tier-chip {
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tier-chip.low { background: var(--green-d); color: var(--green); border: 1px solid rgba(22,163,74,0.2); }
+  .tier-chip.med { background: var(--amber-d); color: var(--amber); border: 1px solid rgba(180,83,9,0.2); }
+  .tier-chip.high { background: var(--red-d); color: var(--red); border: 1px solid rgba(220,38,38,0.2); }
+  .tier-chip .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* PAIR TABLE */
+  .pair-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  .pair-table th {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .pair-table td {
+    padding: 10px 12px;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .pair-table tr:last-child td { border-bottom: none; }
+  .pair-table .check { color: var(--green); font-weight: 700; }
+  .pair-table .cross { color: var(--red); }
+  .pair-table .dash { color: var(--dimmed); }
+  .pair-table .invalid { color: var(--red); font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* WHAT FAILED BLOCK */
+  .failed-block {
+    padding: 16px 20px;
+    background: var(--amber-d);
+    border: 1px solid rgba(180,83,9,0.2);
+    border-radius: 14px;
+    margin: 16px 0;
+  }
+  .failed-block .fb-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 8px;
+  }
+  .failed-block .fb-text {
+    font-size: 13px;
+    color: rgba(17,19,24,0.7);
+    line-height: 1.6;
+  }
+
+  /* DEEP DIVE */
+  .deep-dive {
+    background: rgba(37,99,168,0.05);
+    border: 1px solid rgba(37,99,168,0.18);
+    border-radius: 24px;
+    padding: 3px;
+    margin: 24px 0;
+  }
+  .deep-dive-inner {
+    background: var(--card);
+    border-radius: 21px;
+    padding: 32px;
+  }
+  .deep-dive-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .deep-dive-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--blue);
+    background: var(--blue-d);
+    border: 1px solid rgba(37,99,168,0.2);
+    border-radius: 6px;
+    padding: 4px 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+
+  /* KEY DECISIONS */
+  .kd-row {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .kd-row:last-child { border-bottom: none; }
+  .kd-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+  .kd-why, .kd-tradeoff {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 3px;
+    line-height: 1.5;
+  }
+  .kd-why .tag { color: var(--blue); font-family: var(--mono); font-size: 9px; margin-right: 4px; }
+  .kd-tradeoff .tag { color: var(--amber); font-family: var(--mono); font-size: 9px; margin-right: 4px; }
+
+  /* OUTCOMES */
+  .outcome-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 28px 0;
+  }
+  .outcome-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .outcome-num {
+    font-family: var(--serif);
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1.1;
+    margin: 8px 0 6px;
+  }
+
+  /* HOW I THINK */
+  .think-item { padding: 24px 0; border-top: 1px solid var(--border); }
+  .think-item:last-child { border-bottom: 1px solid var(--border); }
+  .think-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 8px;
+  }
+  .think-text {
+    font-size: 14px;
+    color: rgba(17,19,24,0.75);
+    line-height: 1.7;
+    max-width: 680px;
+  }
+
+  /* CTA */
+  .cta-row { text-align: center; padding: 60px 0 40px; }
+  .cta-btn {
+    display: inline-block;
+    background: var(--white);
+    color: var(--bg);
+    text-decoration: none;
+    padding: 14px 32px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: opacity 0.2s;
+  }
+  .cta-btn:hover { opacity: 0.8; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 0;
+    text-align: center;
+  }
+  footer p {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--dimmed);
+    margin: 0;
+  }
+
+  /* INLINE BADGES */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 100px;
+    padding: 3px 9px;
+    vertical-align: middle;
+  }
+  .badge.blue { background: var(--blue-d); color: var(--blue); }
+  .badge.green { background: var(--green-d); color: var(--green); }
+  .badge.amber { background: var(--amber-d); color: var(--amber); }
+  .badge.red { background: var(--red-d); color: var(--red); }
+  .badge.purple { background: var(--purple-d); color: var(--purple); }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--border); margin: 40px 0; }
+
+  /* COST COMPARISON */
+  .cost-compare {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+    align-items: center;
+    margin: 24px 0;
+  }
+  .cost-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .cost-box .cost-label {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dimmed);
+    margin-bottom: 8px;
+  }
+  .cost-box .cost-num {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1;
+  }
+  .cost-box .cost-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .cost-vs {
+    font-family: var(--serif);
+    font-size: 24px;
+    color: var(--dimmed);
+    font-style: italic;
+    text-align: center;
+  }
+
+  /* ARCH BLOCK */
+  .arch-row {
+    display: flex;
+    gap: 16px;
+    align-items: stretch;
+    margin: 16px 0;
+  }
+  .arch-box {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+  }
+  .arch-box .arch-title {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .arch-box ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .arch-box ul li {
+    font-size: 12px;
+    color: var(--white);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .arch-box ul li::before {
+    content: '—';
+    color: var(--dimmed);
+    font-family: var(--mono);
+    font-size: 9px;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 700px) {
+    .screens-row { grid-template-columns: repeat(2, 1fr); }
+    .stat-row, .outcome-row { grid-template-columns: 1fr 1fr; }
+    .cost-compare { grid-template-columns: 1fr; }
+    .cost-vs { display: none; }
+    .snapshot-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#problem">Problem</a>
+  <a href="#approach">Approach</a>
+  <a href="#product">Product</a>
+  <a href="#trust-pulse">Trust Pulse</a>
+  <a href="#outcomes">Outcomes</a>
+  <span class="nav-tag">Affirm · 2026</span>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="container">
+    <div class="section-label">Hackathon · May 2026 · 2 days</div>
+    <h1>Payment<br><em>Rescue</em></h1>
+    <p style="font-size:17px; max-width:560px; color:rgba(17,19,24,0.65); line-height:1.6;">
+      A self-serve payment path for locked-out Affirm users. Built in 48 hours. The insight: Affirm uses one auth gate for two different trust contracts — and it optimizes for the wrong one.
+    </p>
+
+    <div class="snapshot-grid">
+      <div class="snapshot-item">
+        <div class="snap-label">Role</div>
+        <div class="snap-val">Product Design,<br>Frontend Eng</div>
+      </div>
+      <div class="snapshot-item">
+        <div class="snap-label">Team</div>
+        <div class="snap-val">Rachel · Anupama<br>Caio · Bart · Krzysztof</div>
+      </div>
+      <div class="snapshot-item">
+        <div class="snap-label">Stack</div>
+        <div class="snap-val">React · TypeScript<br>Vite · Framer Motion · MSW</div>
+      </div>
+      <div class="snapshot-item">
+        <div class="snap-label">Estimated at-risk GMV</div>
+        <div class="snap-val" style="color:var(--blue); font-family:var(--serif); font-size:22px;">$120M/yr</div>
+      </div>
+    </div>
+
+    <!-- SCREENS -->
+    <div class="screens-row" style="margin-top:32px">
+      <div class="screen-frame">
+        <img src="cs-signin.jpg" alt="Affirm sign-in with Payment Rescue entry">
+        <span class="screen-caption">Sign-in screen</span>
+        <span class="screen-badge blue">Entry</span>
+      </div>
+      <div class="screen-frame">
+        <img src="cs-verification.jpg" alt="Verification form">
+        <span class="screen-caption">Verification form</span>
+        <span class="screen-badge blue">Identity</span>
+      </div>
+      <div class="screen-frame">
+        <img src="cs-otp.jpg" alt="OTP entry">
+        <span class="screen-caption">Email OTP</span>
+        <span class="screen-badge amber">Auth</span>
+      </div>
+      <div class="screen-frame">
+        <img src="cs-payment.jpg" alt="Payment screen">
+        <span class="screen-caption">Payment</span>
+        <span class="screen-badge blue">Pay</span>
+      </div>
+      <div class="screen-frame">
+        <img src="cs-confirmed.jpg" alt="Payment confirmed">
+        <span class="screen-caption">Confirmed</span>
+        <span class="screen-badge green">Done</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="container">
+    <div class="section-label">01 — Problem</div>
+    <h2>The gate optimizes for<br>the wrong trust contract</h2>
+    <p style="max-width:640px; font-size:15px;">
+      Affirm has one authentication gate for two fundamentally different situations: logging in (capability request) and paying a loan (obligation fulfillment). They are not the same. A user trying to pay is already highly motivated. Every friction point in that path deletes a signal worth more than almost any data model: a borrower trying to repay when we've made it hard.
+    </p>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <span class="stat-tag documented">documented</span>
+        <div class="stat-num blue">3.9M</div>
+        <div class="stat-label">Affirm users currently locked out of their accounts</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-tag documented">documented</span>
+        <div class="stat-num amber">89%</div>
+        <div class="stat-label">of lockouts are phone-related — lost device, SIM swap, phone change failure</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-tag documented">documented</span>
+        <div class="stat-num amber">80K</div>
+        <div class="stat-label">users/month fail Self-Service Phone Change (SSPC) with a payment due in 7 days</div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <span class="stat-tag documented">documented</span>
+        <div class="stat-num red">50%</div>
+        <div class="stat-label">SSPC failure rate — today's account recovery path is broken for half the people who try it</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-tag estimated">estimated</span>
+        <div class="stat-num red">330K</div>
+        <div class="stat-label">inbound support calls/year to Affirm — just so users can make a payment by phone</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-tag estimated">estimated</span>
+        <div class="stat-num red">$120M</div>
+        <div class="stat-label">at-risk payment GMV/year (80K users × ~$125 avg payment × 12 months)</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="card-inner">
+        <h4>The specific failure</h4>
+        <p style="font-size:14px; margin-bottom:0;">The SSPC flow — the official recovery path — fails half the users who attempt it. For the users it does convert, the median resolution time is measured in days, not minutes. During that window, payments go unmade. The user's borrower record accumulates late signals. Support queue volume grows. None of this is caused by fraud risk; it's caused by a phone number changing. The system penalizes a user for a lifecycle event it could recover from cheaply.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- APPROACH -->
+<section id="approach">
+  <div class="container">
+    <div class="section-label">02 — Approach</div>
+    <h2>Identifier pairs, not passwords</h2>
+    <p style="max-width:600px;">
+      The design question was: what's the minimum identity signal sufficient to authorize a single payment? Not account access — just payment. The answer is a pair of identifiers that can only both be known by the account owner, combined with proof-of-control of the email address on file.
+    </p>
+
+    <div class="grid-2" style="gap:16px; margin:28px 0;">
+      <div>
+        <div class="pipeline-flow">
+          <div class="pf-row">
+            <div class="pf-left"><div class="pf-dot"></div><div class="pf-line"></div></div>
+            <div class="pf-card">
+              <span class="pf-num">01</span>
+              <div>
+                <span class="pf-text">Phone auth fails at sign-in</span>
+                <span class="pf-sub">User clicks "Make a payment without logging in"</span>
+              </div>
+              <span class="pf-badge free">entry</span>
+            </div>
+          </div>
+          <div class="pf-row">
+            <div class="pf-left"><div class="pf-dot"></div><div class="pf-line"></div></div>
+            <div class="pf-card">
+              <span class="pf-num">02</span>
+              <div>
+                <span class="pf-text">Identifier pair collection</span>
+                <span class="pf-sub">Loan ID + Email / DOB / SSN4 — at least two items</span>
+              </div>
+              <span class="pf-badge db">identity</span>
+            </div>
+          </div>
+          <div class="pf-row">
+            <div class="pf-left"><div class="pf-dot"></div><div class="pf-line"></div></div>
+            <div class="pf-card">
+              <span class="pf-num">03</span>
+              <div>
+                <span class="pf-text">Trust Pulse risk scoring</span>
+                <span class="pf-sub">Device, IP, geo, account history → tier: low / med / high</span>
+              </div>
+              <span class="pf-badge llm">AI</span>
+            </div>
+          </div>
+          <div class="pf-row">
+            <div class="pf-left"><div class="pf-dot"></div><div class="pf-line"></div></div>
+            <div class="pf-card">
+              <span class="pf-num">04</span>
+              <div>
+                <span class="pf-text">Email OTP (if required)</span>
+                <span class="pf-sub">Proof-of-control of account email. Skipped if tier=low</span>
+              </div>
+              <span class="pf-badge server">conditional</span>
+            </div>
+          </div>
+          <div class="pf-row">
+            <div class="pf-left"><div class="pf-dot" style="background:var(--green)"></div><div class="pf-line" style="display:none"></div></div>
+            <div class="pf-card" style="border-color:rgba(22,163,74,0.3)">
+              <span class="pf-num" style="color:var(--green)">05</span>
+              <div>
+                <span class="pf-text" style="color:var(--green)">Single-payment session</span>
+                <span class="pf-sub">Fresh instrument only. Session scoped to one transaction.</span>
+              </div>
+              <span class="pf-badge free">authorized</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="card">
+          <div class="card-inner" style="padding:20px">
+            <h4>Why not KBA?</h4>
+            <p style="font-size:12px; margin-bottom:0;">Knowledge-Based Authentication was the first design. It was removed. KBA question corpora are largely solvable from data breach dumps. Email OTP provides actual proof-of-control — not just knowledge — and removes the need for question library maintenance and distractor generation entirely. It is strictly stronger.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-inner" style="padding:20px">
+            <h4>Why fresh instrument only?</h4>
+            <p style="font-size:12px; margin-bottom:0;">The session is authorized for one payment. Not for browsing, editing, or viewing account data. Surfacing stored cards would expand the authorization surface. The deliberate constraint — new instrument every time — is a security posture decision, not a product limitation.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-inner" style="padding:20px">
+            <h4>Why a modal, not an inline state?</h4>
+            <p style="font-size:12px; margin-bottom:0;">"That phone number is invalid" uses a full-screen overlay with fade-in + slide-up animation (24px → 0 travel). The modal gives two clear CTAs — update phone or pay without logging in — without competing with the sign-in form layout.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT -->
+<section id="product">
+  <div class="container">
+    <div class="section-label">03 — Product</div>
+    <h2>Four user journeys,<br>one coherent path</h2>
+
+    <!-- Journey 1 -->
+    <div class="journey-section">
+      <div class="journey-name">J1 — Locked-out Maria (headline scenario)</div>
+      <div class="journey-track">
+        <div class="j-step">
+          <div class="j-node active">📱</div>
+          <div class="j-label">Phone lost</div>
+          <div class="j-sub">Can't receive SMS</div>
+        </div>
+        <div class="j-step">
+          <div class="j-node active">🔐</div>
+          <div class="j-label">Sign-in fails</div>
+          <div class="j-sub">Invalid phone modal</div>
+        </div>
+        <div class="j-step">
+          <div class="j-node active">💳</div>
+          <div class="j-label">Clicks "Pay without login"</div>
+          <div class="j-sub">Entry point</div>
+        </div>
+        <div class="j-step">
+          <div class="j-node active">📋</div>
+          <div class="j-label">Email + Loan ID</div>
+          <div class="j-sub">Two identifiers</div>
+        </div>
+        <div class="j-step">
+          <div class="j-node active">✉️</div>
+          <div class="j-label">Email OTP</div>
+          <div class="j-sub">6-digit code</div>
+        </div>
+        <div class="j-step">
+          <div class="j-node active">💳</div>
+          <div class="j-label">Add debit card</div>
+          <div class="j-sub">Fresh instrument</div>
+        </div>
+        <div class="j-step">
+          <div class="j-node paid">✅</div>
+          <div class="j-label">Paid</div>
+          <div class="j-sub">SSPC recovery CTA shown</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Journey 2 -->
+    <div class="journey-section">
+      <div class="journey-name">J2 — Multi-loan Marcus (disambiguation)</div>
+      <div class="journey-track">
+        <div class="j-step">
+          <div class="j-node active">📋</div>
+          <div class="j-label">Verification</div>
+          <div class="j-sub">Email + Loan ID</div>
+        </div>
+        <div class="j-step">
+          <div class="j-node active">✉️</div>
+          <div class="j-label">OTP verified</div>
+          <div class="j-sub">Code 123456</div>
+        </div>
+        <div class="j-step">
+          <div class="j-node decision">⚙️</div>
+          <div class="j-label">Server resolves loan</div>
+          <div class="j-sub">Most overdue → soonest due</div>
+        </div>
+        <div class="j-step">
+          <div class="j-node active">💳</div>
+          <div class="j-label">Payment screen</div>
+          <div class="j-sub">No picker shown</div>
+        </div>
+        <div class="j-step">
+          <div class="j-node paid">✅</div>
+          <div class="j-label">Paid</div>
+          <div class="j-sub">Highest-priority loan</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Journey 3 -->
+    <div class="journey-section">
+      <div class="journey-name">J3 — Attacker Eve (blocked)</div>
+      <div class="journey-track">
+        <div class="j-step">
+          <div class="j-node decision">⚠️</div>
+          <div class="j-label">Email + SSN4</div>
+          <div class="j-sub">Phished credentials</div>
+        </div>
+        <div class="j-step">
+          <div class="j-node decision">🤖</div>
+          <div class="j-label">Trust Pulse</div>
+          <div class="j-sub">Novel device, geo mismatch</div>
+        </div>
+        <div class="j-step">
+          <div class="j-node decision">📬</div>
+          <div class="j-label">OTP sent</div>
+          <div class="j-sub">Email she can't access</div>
+        </div>
+        <div class="j-step">
+          <div class="j-node blocked">❌</div>
+          <div class="j-label">OTP fails</div>
+          <div class="j-sub">No inbox access</div>
+        </div>
+        <div class="j-step">
+          <div class="j-node blocked">🛑</div>
+          <div class="j-label">Support redirect</div>
+          <div class="j-sub">Flow terminated</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Journey 4 -->
+    <div class="journey-section">
+      <div class="journey-name">J4 — All-caught-up Alex (nothing due)</div>
+      <div class="journey-track">
+        <div class="j-step">
+          <div class="j-node active">✅</div>
+          <div class="j-label">Full verification</div>
+          <div class="j-sub">Passes all checks</div>
+        </div>
+        <div class="j-step">
+          <div class="j-node active">🔍</div>
+          <div class="j-label">Loan lookup</div>
+          <div class="j-sub">No balance due</div>
+        </div>
+        <div class="j-step">
+          <div class="j-node paid">🎉</div>
+          <div class="j-label">All caught up</div>
+          <div class="j-sub">Post-auth only. No existence leak.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Identifier pairs decision tree -->
+    <h3 style="margin-bottom:20px">Identifier pairs → OTP branching</h3>
+    <div class="grid-2" style="gap:24px; align-items:start">
+      <div>
+        <table class="pair-table">
+          <thead>
+            <tr>
+              <th>Identifier Pair</th>
+              <th>OTP Required?</th>
+              <th>Strength</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Email + Loan ID</td>
+              <td><span class="check">✓ Yes</span></td>
+              <td><span class="badge blue">strong</span></td>
+            </tr>
+            <tr>
+              <td>Email + Date of Birth</td>
+              <td><span class="check">✓ Yes</span></td>
+              <td><span class="badge blue">strong</span></td>
+            </tr>
+            <tr>
+              <td>Email + SSN4</td>
+              <td><span class="check">✓ Yes</span></td>
+              <td><span class="badge blue">strong</span></td>
+            </tr>
+            <tr>
+              <td>Loan ID + DOB</td>
+              <td><span class="dash">— No</span></td>
+              <td><span class="badge amber">medium</span></td>
+            </tr>
+            <tr>
+              <td>Loan ID + SSN4</td>
+              <td><span class="dash">— No</span></td>
+              <td><span class="badge amber">medium</span></td>
+            </tr>
+            <tr>
+              <td>DOB + SSN4</td>
+              <td><span class="invalid">✗ invalid</span></td>
+              <td><span class="badge red">no lookup factor</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="dtree">
+        <div class="dt-row" style="justify-content:center">
+          <div class="dt-node root">Identifier pair received</div>
+        </div>
+        <div style="display:flex; justify-content:center">
+          <div style="width:2px; height:16px; background:var(--border2)"></div>
+        </div>
+        <div class="dt-row">
+          <div style="flex:1; position:relative">
+            <div style="position:absolute; top:0; right:0; left:50%; height:1px; background:var(--border2)"></div>
+            <div style="position:absolute; top:0; left:50%; width:1px; height:16px; background:var(--border2)"></div>
+          </div>
+          <div style="flex:1; position:relative">
+            <div style="position:absolute; top:0; left:0; right:50%; height:1px; background:var(--border2)"></div>
+            <div style="position:absolute; top:0; right:50%; width:1px; height:16px; background:var(--border2)"></div>
+          </div>
+        </div>
+        <div class="dt-row" style="gap:12px">
+          <div class="dt-node end-a">Email-based pair<br><small style="font-size:10px; opacity:0.8">contains email</small></div>
+          <div class="dt-node decision">Non-email pair<br><small style="font-size:10px; opacity:0.8">Loan+DOB, Loan+SSN4</small></div>
+        </div>
+        <div style="display:flex; gap:12px; padding:0 0 4px">
+          <div style="flex:1; display:flex; justify-content:center"><div style="width:2px; height:16px; background:var(--border2)"></div></div>
+          <div style="flex:1; display:flex; justify-content:center"><div style="width:2px; height:16px; background:var(--border2)"></div></div>
+        </div>
+        <div class="dt-row" style="gap:12px">
+          <div class="dt-node end-a">Email OTP sent<br><small style="font-size:10px; opacity:0.8">proof of inbox control</small></div>
+          <div class="dt-node end-g">Direct to payment<br><small style="font-size:10px; opacity:0.8">no OTP step</small></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- What failed block -->
+    <h3 style="margin-bottom:16px">What was removed. What failed.</h3>
+    <div style="display:flex; flex-direction:column; gap:10px">
+      <div class="failed-block">
+        <div class="fb-label">Removed: KBA flow</div>
+        <div class="fb-text">Knowledge-Based Authentication was the original plan for the second factor. Removed after realizing KBA corpora are largely solvable from public breach data. Email OTP is strictly stronger: it tests possession of an account, not knowledge of facts about it.</div>
+      </div>
+      <div class="failed-block">
+        <div class="fb-label">Removed: Card-on-file picker</div>
+        <div class="fb-text">Showing stored payment instruments in a session that bypasses normal auth would expand the authorization surface unnecessarily. Fresh instrument every time is a deliberate security posture, not a product gap.</div>
+      </div>
+      <div class="failed-block">
+        <div class="fb-label">Failed: Direct Resend API calls</div>
+        <div class="fb-text">Browser-side calls to api.resend.com fail due to CORS policy and sandbox restrictions. Fixed by adding a Vite dev proxy (<code>/api/send-email → https://api.resend.com</code>) so emails actually delivered to real inboxes during the demo.</div>
+      </div>
+      <div class="failed-block">
+        <div class="fb-label">Failed: MSW service worker scope</div>
+        <div class="fb-text">The mock service worker silently failed to intercept API calls — wrong <code>base</code> config meant the scope was off. Fixed by adding a <code>Service-Worker-Allowed: /</code> header and explicitly setting <code>scope: '/'</code>.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Key decisions -->
+    <div class="card" style="margin-top:8px">
+      <div class="card-inner">
+        <h4>Key decisions</h4>
+        <div style="display:flex; flex-direction:column; gap:0">
+          <div class="kd-row">
+            <div class="kd-name">Email OTP over KBA</div>
+            <div class="kd-why"><span class="tag">WHY</span> Email OTP tests possession of an account identity, not knowledge of facts that may be compromised in public breach datasets.</div>
+            <div class="kd-tradeoff"><span class="tag">TRADE-OFF</span> Requires the user to have access to their email inbox. Users who've also lost email access need a different path (not in scope for M1).</div>
+          </div>
+          <div class="kd-row">
+            <div class="kd-name">Fresh instrument only, no card-on-file surfacing</div>
+            <div class="kd-why"><span class="tag">WHY</span> Authorization surface should match the trust level granted. The session grants one payment, not browsing capabilities. Surfacing stored instruments conflates the two.</div>
+            <div class="kd-tradeoff"><span class="tag">TRADE-OFF</span> More friction per payment, since the user can't tap Apple Pay from a saved card. Acceptable given the security constraint.</div>
+          </div>
+          <div class="kd-row">
+            <div class="kd-name">Modal for invalid phone, not inline error</div>
+            <div class="kd-why"><span class="tag">WHY</span> The modal gives the user two clear CTAs — update phone or pay without logging in — without competing visually with the sign-in form layout. Inline banners get buried.</div>
+            <div class="kd-tradeoff"><span class="tag">TRADE-OFF</span> Heavier interaction model. Acceptable because the modal represents a meaningful fork in the user's path, not a field correction.</div>
+          </div>
+          <div class="kd-row">
+            <div class="kd-name">Affirm DS tokens via CSS custom properties, not npm package</div>
+            <div class="kd-why"><span class="tag">WHY</span> <code>@affirm/components-core</code> requires Artifactory credentials and has Vite compatibility issues. Token values were lifted from DS Core Figma and mapped to CSS custom properties manually.</div>
+            <div class="kd-tradeoff"><span class="tag">TRADE-OFF</span> Drift risk from Figma source. Acceptable for a prototype. Production would use the real package.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST PULSE -->
+<section id="trust-pulse">
+  <div class="container">
+    <div class="section-label">04 — Trust Pulse (AI layer)</div>
+    <h2>Risk scoring before<br>the OTP step</h2>
+    <p style="max-width:580px;">
+      Trust Pulse is a standalone Python service (FastAPI + LangChain + Claude Sonnet) that scores each request before the authentication step. It advises, it does not decide. The <code>risk_framework</code> makes the final call. This is a deliberate constraint: AI output is advisory, not authoritative.
+    </p>
+
+    <div class="deep-dive">
+      <div class="deep-dive-inner">
+        <div class="deep-dive-header">
+          <span class="deep-dive-tag">Deep Dive</span>
+          <h3 style="margin:0">The 500× cost argument</h3>
+        </div>
+        <div class="cost-compare">
+          <div class="cost-box">
+            <div class="cost-label">Onfido (full biometric IDV)</div>
+            <div class="cost-num" style="color:var(--red)">$1.50</div>
+            <div class="cost-sub">per verification check</div>
+            <div style="margin-top:12px; font-family:var(--mono); font-size:10px; color:var(--muted)">~$1.44M/yr at this volume</div>
+          </div>
+          <div class="cost-vs">vs</div>
+          <div class="cost-box">
+            <div class="cost-label">Trust Pulse (Claude API)</div>
+            <div class="cost-num" style="color:var(--green)">$0.003</div>
+            <div class="cost-sub">per risk score</div>
+            <div style="margin-top:12px; font-family:var(--mono); font-size:10px; color:var(--muted)">~$2,880/yr at this volume</div>
+          </div>
+        </div>
+        <div style="background:var(--blue-g); border:1px solid rgba(37,99,168,0.12); border-radius:12px; padding:14px 16px; margin-top:12px">
+          <span style="font-family:var(--mono); font-size:9px; color:var(--blue); letter-spacing:0.1em; text-transform:uppercase">500× cheaper</span>
+          <p style="font-size:12px; color:var(--muted); margin-top:6px; margin-bottom:0;">Biometric IDV trades accuracy for cost. Trust Pulse doesn't replace Onfido for high-risk cases — it fast-lanes the 70–80% of genuinely low-risk requests so expensive checks aren't wasted on them. The comparison is about the cost per correctly-routed low-risk user, not head-to-head accuracy.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="gap:20px; margin-top:24px">
+      <div>
+        <h4 style="margin-bottom:12px">Trust Pulse pipeline</h4>
+        <div class="pipeline-flow">
+          <div class="pf-row">
+            <div class="pf-left"><div class="pf-dot"></div><div class="pf-line"></div></div>
+            <div class="pf-card">
+              <span class="pf-num">01</span>
+              <div>
+                <span class="pf-text">Signal collection</span>
+                <span class="pf-sub">Device fingerprint novelty, IP/geo, ZIP match, account age, payment history, collections status</span>
+              </div>
+              <span class="pf-badge free">free</span>
+            </div>
+          </div>
+          <div class="pf-row">
+            <div class="pf-left"><div class="pf-dot"></div><div class="pf-line"></div></div>
+            <div class="pf-card">
+              <span class="pf-num">02</span>
+              <div>
+                <span class="pf-text">LLM scoring (Claude Sonnet)</span>
+                <span class="pf-sub">Structured prompt via LangChain → score 0.0–1.0 + reasoning (≤250 chars)</span>
+              </div>
+              <span class="pf-badge llm">llm</span>
+            </div>
+          </div>
+          <div class="pf-row">
+            <div class="pf-left"><div class="pf-dot"></div><div class="pf-line"></div></div>
+            <div class="pf-card">
+              <span class="pf-num">03</span>
+              <div>
+                <span class="pf-text">Score-to-tier enforcement</span>
+                <span class="pf-sub">Code enforces mapping. LLM output never trusted as final tier.</span>
+              </div>
+              <span class="pf-badge server">server</span>
+            </div>
+          </div>
+          <div class="pf-row">
+            <div class="pf-left"><div class="pf-dot"></div><div class="pf-line"></div></div>
+            <div class="pf-card">
+              <span class="pf-num">04</span>
+              <div>
+                <span class="pf-text">Risk framework decision</span>
+                <span class="pf-sub">Tier advises. risk_framework decides. Low + strong pair → skip OTP.</span>
+              </div>
+              <span class="pf-badge db">rules</span>
+            </div>
+          </div>
+          <div class="pf-row">
+            <div class="pf-left"><div class="pf-dot" style="background:var(--amber)"></div><div class="pf-line" style="display:none"></div></div>
+            <div class="pf-card" style="border-color:rgba(180,83,9,0.25)">
+              <span class="pf-num" style="color:var(--amber)">↩</span>
+              <div>
+                <span class="pf-text">Fallback: cache + default</span>
+                <span class="pf-sub">1.5s hard timeout. On any failure → tier=med, standard OTP. User never sees degraded state.</span>
+              </div>
+              <span class="pf-badge" style="background:var(--amber-d); color:var(--amber)">resilient</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h4 style="margin-bottom:12px">Tier outcomes</h4>
+        <div class="tier-chips">
+          <div class="tier-chip low"><div class="dot"></div> LOW (0.0–0.35) — fast-lane, skip OTP</div>
+          <div class="tier-chip med"><div class="dot"></div> MED (0.35–0.65) — standard email OTP</div>
+          <div class="tier-chip high"><div class="dot"></div> HIGH (0.65–1.0) — OTP required + flagged</div>
+        </div>
+
+        <div class="score-bar-wrap" style="margin-top:20px">
+          <div class="score-bar-label"><span>Maria (legitimate user)</span><span>score: 0.12 → tier: LOW</span></div>
+          <div class="score-bar-track"><div class="score-bar-fill low" style="width:12%"></div></div>
+        </div>
+        <div class="score-bar-wrap">
+          <div class="score-bar-label"><span>Eve (attacker, geo mismatch)</span><span>score: 0.84 → tier: HIGH</span></div>
+          <div class="score-bar-track"><div class="score-bar-fill high" style="width:84%"></div></div>
+        </div>
+        <div class="score-bar-wrap">
+          <div class="score-bar-label"><span>Typical known device</span><span>score: 0.28 → tier: LOW</span></div>
+          <div class="score-bar-track"><div class="score-bar-fill low" style="width:28%"></div></div>
+        </div>
+        <div class="score-bar-wrap">
+          <div class="score-bar-label"><span>First-time device, known geo</span><span>score: 0.51 → tier: MED</span></div>
+          <div class="score-bar-track"><div class="score-bar-fill med" style="width:51%"></div></div>
+        </div>
+
+        <div style="margin-top:20px">
+          <div class="arch-box">
+            <div class="arch-title">Demo scenarios (pre-cached)</div>
+            <ul>
+              <li>Maria: score 0.12, tier low → fast-lane authorized, no OTP</li>
+              <li>Eve: score 0.84, tier high → email OTP required, request flagged</li>
+              <li>Cache serves in &lt;100ms on LLM failure</li>
+              <li>Feature-flagged: TRUST_PULSE_ENABLED env var</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="failed-block" style="margin-top:24px">
+      <div class="fb-label">Architecture constraint: AI advises, rules decide</div>
+      <div class="fb-text">The score-to-tier mapping is enforced in server code, not trusted from LLM output. Belt-and-suspenders: the LLM returns a score and tier, the server re-derives the tier from the score using the defined thresholds. An adversarially-crafted LLM response cannot self-authorize a payment by claiming tier=low with a score of 0.9.</div>
+    </div>
+  </div>
+</section>
+
+<!-- OUTCOMES -->
+<section id="outcomes">
+  <div class="container">
+    <div class="section-label">05 — Outcomes</div>
+    <h2>What the numbers say</h2>
+    <p style="max-width:540px; font-size:14px; color:var(--muted); margin-bottom:4px;">All metrics labeled by confidence level. No precision inflation.</p>
+
+    <div class="outcome-row">
+      <div class="outcome-card">
+        <span class="stat-tag estimated">estimated</span>
+        <div class="outcome-num" style="color:var(--red)">$120M</div>
+        <div class="stat-label">at-risk payment GMV/year<br>80K users × ~$125 × 12 months</div>
+      </div>
+      <div class="outcome-card">
+        <span class="stat-tag estimated">estimated</span>
+        <div class="outcome-num" style="color:var(--green)">$18M</div>
+        <div class="stat-label">recoverable GMV/year<br>at 15% conversion (directional)</div>
+      </div>
+      <div class="outcome-card">
+        <span class="stat-tag estimated">estimated</span>
+        <div class="outcome-num" style="color:var(--blue)">500×</div>
+        <div class="stat-label">cost reduction vs Onfido IDV<br>$0.003 vs $1.50 per check</div>
+      </div>
+    </div>
+
+    <div class="outcome-row">
+      <div class="outcome-card">
+        <span class="stat-tag documented">documented</span>
+        <div class="outcome-num" style="color:var(--amber)">330K</div>
+        <div class="stat-label">support calls/year<br>just for payment by phone</div>
+      </div>
+      <div class="outcome-card">
+        <span class="stat-tag directional">directional</span>
+        <div class="outcome-num" style="color:var(--blue)">5–7 wk</div>
+        <div class="stat-label">to M1 production<br>product-flow + gRPC + Trust Pulse evals</div>
+      </div>
+      <div class="outcome-card">
+        <span class="stat-tag directional">directional</span>
+        <div class="outcome-num" style="color:var(--green)">~5s</div>
+        <div class="stat-label">magic-link future state<br>tokenized URL → one tap → paid</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:8px">
+      <div class="card-inner">
+        <h4>Post-hackathon production path</h4>
+        <div class="arch-row">
+          <div class="arch-box">
+            <div class="arch-title">M1 scope (~5–7 weeks)</div>
+            <ul>
+              <li>Productionize product-flow module (1–2w)</li>
+              <li>Productionize repayment-experience gRPC handler (2w)</li>
+              <li>Trust Pulse: real device/IP/behavioral pipeline, evals, A/B (2w)</li>
+              <li>Fraud-middleware bypass / route allowlist with risk team (calendar dep)</li>
+              <li>Compliance pre-read (calendar dep)</li>
+            </ul>
+          </div>
+          <div class="arch-box">
+            <div class="arch-title">Future scope</div>
+            <ul>
+              <li>Magic-link entry: tokenized URLs in payment comms</li>
+              <li>15-min TTL single-use JWTs</li>
+              <li>One-tap from email to paid (~5 seconds end-to-end)</li>
+              <li>Behavioral pipeline for Trust Pulse (real device signals)</li>
+              <li>Trust Pulse evals + model quality gate before prod</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW I THINK -->
+<section id="thinking">
+  <div class="container">
+    <div class="section-label">06 — How we think</div>
+    <h2>Four sharp statements</h2>
+
+    <div style="margin-top:32px">
+      <div class="think-item">
+        <div class="think-label">Authorization surface</div>
+        <p class="think-text">The authorization granted should match the trust level established — not the maximum possible. A session that proves "this person can receive email at the address on the account" authorizes payment. It does not authorize browsing stored cards, editing account details, or any other capability. Conflating trust levels creates risk; distinguishing them is just engineering discipline.</p>
+      </div>
+      <div class="think-item">
+        <div class="think-label">Friction as signal</div>
+        <p class="think-text">Payment intent in a hard-to-pay context is a strong signal. A user who finds a rescue flow, navigates it correctly, and completes an OTP step is almost certainly not a fraudster — fraudsters target easy paths. Optimizing that flow for speed is not a security trade-off; it's correctly reading what the friction has already filtered.</p>
+      </div>
+      <div class="think-item">
+        <div class="think-label">AI as advisor, not authority</div>
+        <p class="think-text">Trust Pulse scores requests. It does not authorize them. The score-to-tier mapping is enforced in code independent of LLM output. This isn't distrust of the model — it's recognizing that a system where adversarial input to the LLM can change an auth decision is not a security system. The model advises; the rules decide.</p>
+      </div>
+      <div class="think-item">
+        <div class="think-label">Resilience is a product feature</div>
+        <p class="think-text">Trust Pulse has a 1.5-second hard timeout. On any failure — timeout, 5xx, malformed response — it defaults to tier=med and standard OTP. The user never encounters a degraded state. Cached verdicts serve pre-scored demo scenarios in under 100ms. A feature that degrades visibly under failure is only conditionally shipping. The fallback is part of the design.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <div class="cta-row">
+    <a href="http://localhost:5173" class="cta-btn" target="_blank">Open the prototype →</a>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>Payment Rescue · Affirm Hackathon · May 2026 · Rachel, Anupama, Caio, Bart, Krzysztof</p>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,137 @@
+---
+description: "Apply Affirm's DESIGN.md when generating or modifying UI. Ensures all generated code uses the correct Affirm design tokens, colors, typography, spacing, and component patterns sourced from the DS Core Library Figma file. Triggers on: build UI, create component, apply design system, use DESIGN.md, match Affirm style, generate page, affirm design md."
+alwaysApply: true
+---
+
+# Affirm DESIGN.md Applicator
+
+Generate and modify UI code that matches Affirm's design system as defined in `DESIGN.md` (located at `.cursor/rules/DESIGN.md`). This rule ensures every piece of generated UI uses the authoritative design tokens extracted from the DS Core Library Figma file.
+
+## When to Use
+
+- Building new UI components, pages, or screens
+- Modifying existing UI to match Affirm's brand
+- Reviewing generated UI for design system compliance
+- Prototyping outside of the main Affirm codebases
+- Any time the user says "apply design system", "use DESIGN.md", "match Affirm style", or asks to build UI
+
+## Project Context
+
+This is a **standalone Vite + React prototype** (`afrm-payrescue`). The project uses CSS Modules with design tokens defined in `src/styles/tokens.css`. Always:
+- Reference existing tokens like `var(--components-color-background-interactive-default)`, `var(--font-family-display)`, etc.
+- Prefer token references over raw hex values in component CSS Modules
+- When no token exists for a value, use the raw hex from DESIGN.md directly in CSS
+
+## Apply Design Tokens
+
+When generating any UI code, apply these rules in order:
+
+### Colors
+1. Primary button background: `#000049` → `var(--components-color-background-interactive-default)` — NEVER `#8C8CFF`
+2. Page background: `#f8f8fa` → `var(--components-color-background-secondary)`
+3. Primary text: `#121319` → `var(--components-color-foreground-primary)` — never pure black
+4. Link text: `#1b0d7c` (use directly, no token alias exists)
+5. Border primary: `#cccdd4` → `var(--components-color-border-default)`
+6. Brand accent: `#4a4af4`
+
+### Typography
+1. Headlines: `var(--font-family-display)` = `'Axiforma for Affirm'` with SF Pro fallbacks
+2. Body: `var(--font-family-body)` = `'Calibre'` with SF Pro fallbacks
+3. Minimum body: 16px (`var(--semantic-size-body-medium)`)
+4. Headlines use negative letter-spacing (-0.25px at 24px, -0.5px at 32px, -1px at 40px+)
+5. `headline-Small` (18px, weight 700) is the ONLY place Bold (700) is allowed
+
+### Spacing (use existing tokens)
+- Page margins: 16px = `var(--components-spacing-md)`
+- Page vertical: 32px = `var(--components-spacing-xl)`
+- Card padding: 16px = `var(--components-spacing-md)`
+- Dialog padding: 24px = `var(--components-spacing-lg)`
+
+### Border Radius (use existing tokens)
+- Buttons: pill → `border-radius: 100px` (already set globally in `Button.module.css`)
+- Cards on page: 16px = `var(--radius-onpage-default)`
+- Cards on surface / inputs: 8px = `var(--radius-onsurface-default)`
+- Dialogs/modals: 24px = `var(--radius-elevatedsurface-default)`
+- Inset elements: 2px = `var(--radius-onsurface-inset)`
+
+### Elevation
+1. Default: NO shadow. Use background color layering via the bg tokens
+2. No box-shadow on cards or containers
+
+## Reflex Patterns to Reject
+
+Match-and-refuse — if about to write any of these, stop and use the Affirm equivalent:
+
+- `#8C8CFF`, `#a5a5ff` as primary button → use `#000049` / `var(--components-color-background-interactive-default)`
+- `#7c3aed`, `#6366f1`, `#4f46e5` as primary CTA → `#000049`
+- Any `linear-gradient(...)` on page body, hero, or card → flat surface tokens
+- `box-shadow` on cards or containers → use bg color layering
+- `border-radius: 4px / 6px / 8px` on buttons → pill (100px)
+- Pure white `#ffffff` as page body background → `var(--components-color-background-secondary)` = `#f8f8fa`
+- `#000`, `#000000`, `#212121` for body text → `var(--components-color-foreground-primary)` = `#121319`
+- `font-family: Inter` → use `var(--font-family-body)` (Calibre)
+- `font-family: Arial` / `Helvetica` / bare `system-ui` → use `var(--font-family-display)` or `var(--font-family-body)`
+- `text-transform: uppercase` + bold on form labels → sentence-case Medium-weight
+- `font-weight: 700` on body text → Semibold (600) maximum; Bold only for `headline-Small`
+- Arbitrary spacing (15px, 18px, 25px, 30px) → use token values (8, 12, 16, 24, 32px)
+- `border-radius` < 18px on buttons → pill
+- Gradients as page or card backgrounds → flat
+
+## The Affirm Slop Test
+
+Before handing off any UI, run this gut check:
+
+> If you showed this to an Affirm employee and said "this is from our product," would they believe you?
+
+The fingerprint is: deep indigo `#000049`, flat layered neutrals (no shadows), pill buttons (100px radius), Calibre/Axiforma. If those four things aren't immediately present, the test fails.
+
+## CSS Token Quick Reference
+
+```css
+/* Primary CTA */
+var(--components-color-background-interactive-default)     /* #000049 */
+var(--components-color-background-interactive-default-hover)  /* #3131a3 */
+var(--components-color-foreground-on-interactive)          /* #ffffff */
+
+/* Backgrounds */
+var(--components-color-background-secondary)               /* #f8f8fa — page bg */
+var(--components-color-background-primary)                 /* #ffffff — card surface */
+var(--components-color-background-tertiary)                /* #edeef2 — inset */
+
+/* Text */
+var(--components-color-foreground-primary)                 /* #121319 */
+var(--components-color-foreground-secondary)               /* #5f6272 */
+var(--components-color-foreground-tertiary)                /* #74748a */
+
+/* Borders */
+var(--components-color-border-default)                     /* #cccdd4 */
+var(--components-color-border-interactive-default)         /* #000049 */
+
+/* Radius */
+var(--radius-onsurface-default)                            /* 8px */
+var(--radius-onpage-default)                               /* 16px */
+var(--radius-elevatedsurface-default)                      /* 24px */
+
+/* Spacing */
+var(--components-spacing-xs)    /* 8px */
+var(--components-spacing-sm)    /* 12px */
+var(--components-spacing-md)    /* 16px */
+var(--components-spacing-lg)    /* 24px */
+var(--components-spacing-xl)    /* 32px */
+
+/* Typography */
+var(--font-family-display)      /* 'Axiforma for Affirm', SF Pro Display fallbacks */
+var(--font-family-body)         /* 'Calibre', SF Pro Text fallbacks */
+var(--semantic-size-body-small)   /* 14px */
+var(--semantic-size-body-medium)  /* 16px — default body */
+var(--semantic-size-body-large)   /* 18px */
+var(--semantic-size-heading-md)   /* 24px — headline/Medium */
+var(--font-weight-regular)        /* 400 */
+var(--font-weight-medium)         /* 500 */
+var(--font-weight-semibold)       /* 600 */
+var(--font-weight-bold)           /* 700 — headline-Small ONLY */
+```
+
+## Figma Source
+
+All values are extracted from: **DS Core Library** (`pypC8nTqembCVoO66eSHRn`). Full spec in `.cursor/rules/DESIGN.md`.

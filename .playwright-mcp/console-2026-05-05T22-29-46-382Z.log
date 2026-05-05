@@ -1,0 +1,2 @@
+[  561987ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/upay/phone/send-otp:0
+[  580855ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/api/upay/phone/verify-otp:0

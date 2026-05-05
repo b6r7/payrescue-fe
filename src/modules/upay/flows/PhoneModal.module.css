@@ -1,0 +1,171 @@
+/* ── Backdrop ─────────────────────────────────────────── */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(12, 12, 20, 0.48);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+/* ── Panel ────────────────────────────────────────────── */
+.panel {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.04),
+    0 20px 60px rgba(0, 0, 0, 0.16);
+  padding: 32px 28px 28px;
+  overflow: hidden;
+}
+
+/* ── Close button ─────────────────────────────────────── */
+.closeBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.06);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #5c5c72;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.closeBtn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.closeBtn:focus-visible {
+  outline: 2px solid #4a4af4;
+  outline-offset: 2px;
+}
+
+/* ── Step content container ───────────────────────────── */
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Icon ring ────────────────────────────────────────── */
+.iconRing {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(74, 74, 244, 0.1);
+  color: #4a4af4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Copy block ───────────────────────────────────────── */
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  font-family: var(--font-family-display);
+  font-size: var(--semantic-size-heading-md);     /* headline-Medium: 24px */
+  font-weight: var(--font-weight-semibold);        /* 600 */
+  line-height: var(--lh-headline-medium);          /* 32px */
+  letter-spacing: var(--ls-headline-medium);       /* -0.25px */
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.subtitle {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-medium);     /* body-Medium: 16px */
+  line-height: var(--lh-body-medium);              /* 24px */
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.phoneDisplay {
+  font-weight: 700;
+  color: #0c0c14;
+}
+
+.changeLink {
+  font-family: var(--font-family-body, 'Calibre', sans-serif);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #4a4af4;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: inherit;
+  text-decoration: none;
+}
+
+.changeLink:hover {
+  opacity: 0.78;
+}
+
+/* ── OTP field error ──────────────────────────────────── */
+.fieldError {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);      /* body-Small: 14px */
+  line-height: var(--lh-body-small);               /* 21px */
+  color: #d93025;
+  margin: -12px 0 0;
+}
+
+/* ── Resend row ───────────────────────────────────────── */
+.resendRow {
+  display: flex;
+  justify-content: center;
+  min-height: 20px;
+}
+
+.resendBtn {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);      /* body-Small: 14px */
+  font-weight: var(--font-weight-medium);          /* 500 */
+  line-height: var(--lh-body-small);               /* 21px */
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+  text-align: center;
+}
+
+.resendBtn:hover {
+  color: #0c0c14;
+}
+
+.resendBtn:focus-visible {
+  outline: 2px solid #4a4af4;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.resentMsg {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);      /* 14px */
+  font-weight: var(--font-weight-medium);          /* 500 */
+  line-height: var(--lh-body-small);               /* 21px */
+  color: #1a8a4a;
+  text-align: center;
+}

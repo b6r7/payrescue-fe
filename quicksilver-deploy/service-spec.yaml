@@ -1,0 +1,24 @@
+spec:
+  containers:
+    - name: app
+      image: /PROD__QUICKSILVER__US/AFFIRM_UPAY/images/affirm-upay:latest
+      env:
+        APP_NAME: "affirm-upay"
+        SNOWFLAKE_DATABASE: "PROD__QUICKSILVER__US"
+        SNOWFLAKE_SCHEMA: "AFFIRM_UPAY"
+        SNOWFLAKE_ROLE: "QUICKSILVER_AFFIRM_UPAY_ROLE"
+        SNOWFLAKE_WAREHOUSE: "QUICKSILVER_WH"
+      readinessProbe:
+        port: 8000
+        path: /health
+      resources:
+        requests:
+          cpu: 0.5
+          memory: 1G
+        limits:
+          cpu: 2
+          memory: 2G
+  endpoints:
+    - name: http
+      port: 8000
+      public: true

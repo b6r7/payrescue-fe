@@ -1,0 +1,20 @@
+name: affirm-upay
+team: product-experience
+
+snowflake:
+  database: PROD__QUICKSILVER__US
+  schema: AFFIRM_UPAY
+  role: QUICKSILVER_AFFIRM_UPAY_ROLE
+  warehouse: QUICKSILVER_WH
+  compute_pool: QUICKSILVER_POOL
+
+owners:
+  - bart.andrzejewski@affirm.com
+
+template: fastapi
+
+secrets:
+  - RESEND_API_KEY
+
+egress:
+  - api.resend.com:443

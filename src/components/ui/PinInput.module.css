@@ -1,0 +1,61 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--components-spacing-xs);
+  width: 100%;
+}
+
+.cells {
+  display: flex;
+  gap: var(--components-spacing-xs);
+  justify-content: center;
+}
+
+.cell {
+  width: 48px;
+  height: 56px;
+  text-align: center;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-heading-sm);      /* comp-XLarge-HighImp: 20px */
+  font-weight: var(--font-weight-semibold);        /* 600 */
+  line-height: var(--lh-comp-xlarge);              /* 28px */
+  color: var(--components-color-foreground-primary);
+  background-color: var(--components-color-background-primary);
+  border: 1px solid var(--components-color-border-default);
+  border-radius: var(--radius-onsurface-default);
+  outline: none;
+  transition:
+    border-color var(--time-quick) var(--curve-ease),
+    box-shadow var(--time-quick) var(--curve-ease);
+  appearance: none;
+  caret-color: transparent;
+}
+
+.cell:focus,
+.cell--focused {
+  border-color: var(--components-color-border-interactive-default);
+  box-shadow: 0 0 0 3px rgba(26, 26, 110, 0.12);
+}
+
+.cell--filled {
+  border-color: var(--components-color-border-interactive-default);
+}
+
+.cell--error {
+  border-color: var(--components-color-border-critical);
+}
+
+.cell--error:focus {
+  box-shadow: 0 0 0 3px rgba(196, 48, 40, 0.12);
+}
+
+.cell:disabled {
+  background-color: var(--components-color-background-tertiary);
+  cursor: not-allowed;
+}
+
+.error {
+  font-size: var(--semantic-size-body-small);
+  color: var(--components-color-foreground-critical);
+}

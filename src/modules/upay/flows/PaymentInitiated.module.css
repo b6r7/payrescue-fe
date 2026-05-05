@@ -1,0 +1,256 @@
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--components-spacing-md);
+  padding: var(--components-spacing-xl) 0;
+  color: var(--components-color-foreground-secondary);
+  font-size: var(--semantic-size-body-medium);
+}
+
+.ring {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--components-color-background-tertiary);
+  border-top-color: var(--components-color-background-interactive-default);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loanInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* headline-Medium: Axiforma Semibold 24/32 −0.25px */
+.pageTitle {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: var(--semantic-size-heading-md);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--lh-headline-medium);
+  letter-spacing: var(--ls-headline-medium);
+  color: var(--components-color-foreground-primary);
+}
+
+/* body-XLarge: Calibre Regular 20/30 0px */
+.pageSubtitle {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: 20px;
+  font-weight: var(--font-weight-regular);
+  line-height: 30px;
+  letter-spacing: 0px;
+  color: var(--components-color-foreground-primary);
+}
+
+.merchantInline {
+  display: inline;
+}
+
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Section header — headline/Small: Axiforma Bold 18/24, ls 0 */
+.sectionLabel {
+  font-family: var(--font-family-display);
+  font-size: var(--semantic-size-body-large);      /* headline-Small: 18px */
+  font-weight: var(--font-weight-bold);            /* 700 */
+  line-height: var(--lh-headline-small);           /* 24px */
+  letter-spacing: var(--ls-headline-small);        /* 0px */
+  color: var(--components-color-foreground-primary);
+}
+
+/* ── Shared container: white card with border, Figma List of Rows ── */
+.methodContainer {
+  background: #ffffff;
+  border: 1px solid #cccdd4;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Row (works for both label and button) ── */
+.methodRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  min-height: 52px;
+  cursor: pointer;
+  text-align: left;
+  background: transparent;
+  border: none;
+  width: 100%;
+  transition: background-color 0.12s ease;
+}
+
+.methodRow:hover {
+  background-color: #f5f5fa;
+}
+
+.methodRow--selected {
+  background-color: #f0f0fb;
+}
+
+/* Apple Pay row gets slightly more padding to let the wordmark breathe */
+.methodRow--applePay {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+/* Thin divider between rows — inline variant (between dynamic items) */
+.methodDivider {
+  height: 1px;
+  background: #e8e8f0;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+/* Absolute-positioned top border for indexed rows (avoids double-border on first) */
+.methodDividerAbsolute {
+  position: absolute;
+  top: 0;
+  left: 16px;
+  right: 0;
+  height: 1px;
+  background: #e8e8f0;
+}
+
+/* ── Icon chip ── */
+.methodIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #edf1f5;
+  flex-shrink: 0;
+  color: #4b4b5c;
+}
+
+/* Dark Apple Pay chip */
+.methodIconWrap--dark {
+  background-color: #0c0c14;
+  color: #ffffff;
+  border-radius: 10px;
+  width: 52px;
+}
+
+/* ── Text inside rows ── */
+.methodLabel {
+  flex: 1;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-medium);     /* comp-Medium-MidImp: 16px */
+  font-weight: var(--font-weight-medium);          /* 500 */
+  line-height: var(--lh-comp-medium);              /* 20px */
+  color: var(--components-color-foreground-primary);
+}
+
+.changeBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);
+  font-weight: var(--font-weight-medium);
+  color: var(--components-color-foreground-interactive-default);
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.changeBtn:hover { opacity: 0.7; }
+
+.radioInput {
+  accent-color: var(--components-color-background-interactive-default);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* ── Amount row content ── */
+.amountOptionContent {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.amountLabel {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-medium);     /* body-Medium: 16px */
+  font-weight: var(--font-weight-regular);         /* 400 */
+  line-height: var(--lh-body-medium);              /* 24px */
+  color: var(--components-color-foreground-primary);
+}
+
+.amountValue {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-medium);     /* body-Medium-HighImp: 16px */
+  font-weight: var(--font-weight-semibold);        /* 600 */
+  line-height: var(--lh-body-medium);              /* 24px */
+  color: var(--components-color-foreground-primary);
+  flex-shrink: 0;
+}
+
+.customAmountInput {
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--components-spacing-sm);
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-medium);
+  color: var(--components-color-foreground-primary);
+  background-color: var(--components-color-background-primary);
+  border: 1px solid var(--components-color-border-interactive-default);
+  border-radius: var(--radius-onsurface-default);
+  outline: none;
+  margin-top: var(--components-spacing-xxs);
+}
+
+.authorization {
+  padding: var(--components-spacing-xs) 0;
+}
+
+.authText {
+  font-size: var(--size-comp-xsmall);
+  line-height: var(--lh-comp-xsmall);
+  color: var(--components-color-foreground-tertiary);
+  text-align: center;
+}
+
+/* ── One-time payment auth disclaimer ───────────────── */
+.authDisclaimer {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);      /* 14px */
+  font-weight: var(--font-weight-regular);
+  line-height: var(--lh-body-small);
+  color: var(--components-color-foreground-secondary);
+  text-align: center;
+}
+
+.authDisclaimerLink {
+  color: var(--components-color-background-interactive-default, #000049);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: inherit;
+  transition: opacity 0.15s;
+}
+
+.authDisclaimerLink:hover {
+  opacity: 0.7;
+}

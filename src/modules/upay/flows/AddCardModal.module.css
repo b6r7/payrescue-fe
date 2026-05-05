@@ -1,0 +1,288 @@
+/* ── Backdrop ─────────────────────────────────────────── */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(12, 12, 20, 0.48);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* ── Panel (bottom sheet) ─────────────────────────────── */
+.panel {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  box-shadow:
+    0 -4px 24px rgba(0, 0, 0, 0.10),
+    0 -1px 4px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── Drag handle ──────────────────────────────────────── */
+.dragHandle {
+  width: 36px;
+  height: 4px;
+  background: #d0d0da;
+  border-radius: 2px;
+  margin: 12px auto 4px;
+  flex-shrink: 0;
+}
+
+/* ── Header ───────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px 14px;
+}
+
+.backBtn,
+.closeBtn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0c0c14;
+  transition: background 0.15s;
+}
+
+.backBtn:hover,
+.closeBtn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.backBtn:focus-visible,
+.closeBtn:focus-visible {
+  outline: 2px solid #4a4af4;
+  outline-offset: 2px;
+}
+
+.headerTitle {
+  flex: 1;
+  font-family: var(--font-family-display);
+  font-size: var(--semantic-size-body-large);      /* headline-Small: 18px */
+  font-weight: var(--font-weight-bold);
+  line-height: var(--lh-headline-small);
+  letter-spacing: var(--ls-headline-small);
+  color: var(--components-color-foreground-primary);
+  margin: 0;
+}
+
+/* ── Picker list ──────────────────────────────────────── */
+.pickerList {
+  list-style: none;
+  margin: 0;
+  padding: 0 16px 32px;
+}
+
+.pickerRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--components-color-foreground-primary);
+  transition: opacity 0.15s;
+}
+
+.pickerRow:hover { opacity: 0.72; }
+
+.pickerRow:focus-visible {
+  outline: 2px solid #4a4af4;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.pickerIconWrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.10);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--components-color-foreground-primary);
+}
+
+.pickerIconWrap--dark {
+  background: #000;
+  border-color: #000;
+  color: #fff;
+}
+
+.pickerLabel {
+  flex: 1;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-large);      /* 18px */
+  font-weight: var(--font-weight-medium);
+  line-height: var(--lh-body-large);
+  color: var(--components-color-foreground-primary);
+}
+
+.pickerDividerWrap {
+  padding: 0;
+}
+
+.pickerDivider {
+  height: 1px;
+  background: var(--components-color-border-secondary, #e5e5e9);
+}
+
+/* ── Card form ────────────────────────────────────────── */
+.form {
+  padding: 4px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.fieldInputWrap {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid rgba(0, 0, 0, 0.14);
+  border-radius: 10px;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  overflow: hidden;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.fieldInputWrap:focus-within {
+  border-color: #000049;
+  box-shadow: 0 0 0 3px rgba(0, 0, 73, 0.08);
+}
+
+.fieldInputWrap--error {
+  border-color: #d93025;
+}
+
+.fieldInputWrap--error:focus-within {
+  border-color: #d93025;
+  box-shadow: 0 0 0 3px rgba(217, 48, 37, 0.10);
+}
+
+.fieldInput {
+  flex: 1;
+  padding: 13px 14px;
+  font-family: var(--font-family-body, 'Calibre', sans-serif);
+  font-size: 1rem;
+  color: #0c0c14;
+  border: none;
+  outline: none;
+  background: transparent;
+  min-width: 0;
+}
+
+.fieldInput::placeholder {
+  color: #b0b0c0;
+}
+
+.fieldRight {
+  padding-right: 12px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: #9c9cae;
+}
+
+.brandBadge {
+  font-family: var(--font-family-body);
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  color: #fff;
+  background: #000049;
+  border-radius: 4px;
+  padding: 2px 6px;
+  white-space: nowrap;
+}
+
+.fieldError {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);
+  line-height: var(--lh-body-small);
+  color: #d93025;
+}
+
+/* Three-column row: MM/YY | CVC | ZIP */
+.fieldRow3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Save / Add button ────────────────────────────────── */
+.saveBtn {
+  display: block;
+  width: calc(100% - 32px);
+  margin: 16px 16px 20px;
+  box-sizing: border-box;
+  height: 52px;
+  border-radius: 100px;
+  background: #000049;
+  color: #fff;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-medium);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--lh-comp-medium);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s;
+}
+
+.saveBtn:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.saveBtn--disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Loading spinner */
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

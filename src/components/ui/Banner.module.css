@@ -1,0 +1,32 @@
+.banner {
+  padding: var(--components-spacing-sm) var(--components-spacing-md);
+  border-radius: var(--radius-onsurface-default);
+  font-size: var(--semantic-size-body-small);      /* body-Small: 14px */
+  font-weight: var(--font-weight-medium);          /* 500 */
+  line-height: var(--lh-body-small);               /* 21px */
+  width: 100%;
+}
+
+.banner--default {
+  background-color: var(--components-color-background-secondary);
+  color: var(--components-color-foreground-secondary);
+  border: 1px solid var(--components-color-border-default);
+}
+
+.banner--positive {
+  background-color: var(--components-color-background-positive);
+  color: var(--components-color-foreground-positive);
+  border: 1px solid var(--base-color-green-700);
+}
+
+.banner--critical {
+  background-color: var(--components-color-background-critical);
+  color: var(--components-color-foreground-critical);
+  border: 1px solid var(--components-color-border-critical);
+}
+
+.banner--attention {
+  background-color: var(--components-color-background-attention);
+  color: var(--components-color-foreground-attention);
+  border: 1px solid var(--base-color-yellow-700);
+}

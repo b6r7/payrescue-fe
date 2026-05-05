@@ -1,0 +1,19 @@
+.editable {
+  cursor: text;
+  border-radius: 3px;
+  transition: background 0.12s, outline 0.12s;
+  outline: 1.5px dashed transparent;
+  outline-offset: 2px;
+  white-space: pre-wrap;
+}
+
+.editable:hover {
+  background: rgba(74, 74, 244, 0.07);
+  outline-color: rgba(74, 74, 244, 0.35);
+}
+
+.editable:focus {
+  background: rgba(74, 74, 244, 0.1);
+  outline-color: rgba(74, 74, 244, 0.7);
+  outline-style: solid;
+}

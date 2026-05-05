@@ -1,0 +1,206 @@
+/* ── Backdrop ── */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(12, 12, 20, 0.45);
+  overflow: hidden;
+}
+
+/* ── Sheet ── */
+.sheet {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: var(--upay-max-width, 400px);
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  padding: 0 0 env(safe-area-inset-bottom, 16px);
+  overflow: hidden;
+}
+
+/* ── Drag handle ── */
+.handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(75, 75, 92, 0.35);
+  margin: 12px auto 0;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 20px 8px;
+  gap: 12px;
+}
+
+.title {
+  font-family: var(--font-family-heading, 'Axiforma for Affirm', sans-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #0c0c14;
+  margin: 0;
+  flex: 1;
+}
+
+.closeBtn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #0c0c14;
+  padding: 0;
+  border-radius: 50%;
+  margin-top: 2px;
+  transition: background 0.15s;
+}
+
+.closeBtn:hover {
+  background: rgba(12, 12, 20, 0.06);
+}
+
+.closeBtn:focus-visible {
+  outline: 2px solid var(--base-color-indigo-970, #1a1a6e);
+  outline-offset: 2px;
+}
+
+/* ── Month navigation ── */
+.monthNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 16px 12px;
+}
+
+.monthLabel {
+  font-family: var(--font-family-body, 'Calibre', sans-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0c0c14;
+  letter-spacing: 0.01em;
+}
+
+.navBtn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #0c0c14;
+  border-radius: 50%;
+  padding: 0;
+  transition: background 0.15s;
+}
+
+.navBtn:hover {
+  background: rgba(12, 12, 20, 0.06);
+}
+
+.navBtn:focus-visible {
+  outline: 2px solid var(--base-color-indigo-970, #1a1a6e);
+  outline-offset: 2px;
+}
+
+.navBtn--disabled {
+  opacity: 0.3;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ── Day-of-week headers ── */
+.dayHeaders {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 0 8px 4px;
+}
+
+.dayHeader {
+  font-family: var(--font-family-body, 'Calibre', sans-serif);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #4b4b5c;
+  text-align: center;
+  padding: 4px 0;
+}
+
+/* ── Calendar grid ── */
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 0 8px 12px;
+  gap: 2px 0;
+}
+
+/* ── Day cells ── */
+.dayCell {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family-body, 'Calibre', sans-serif);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #0c0c14;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.12s, color 0.12s;
+  user-select: none;
+}
+
+.dayCell:not(.dayCell--overflow):not(.dayCell--future):hover {
+  background: rgba(0, 0, 73, 0.07);
+}
+
+.dayCell:not(.dayCell--overflow):not(.dayCell--future):focus-visible {
+  outline: 2px solid var(--base-color-indigo-970, #1a1a6e);
+  outline-offset: 1px;
+}
+
+/* Overflow (adjacent month) — gray tile, no interaction */
+.dayCell--overflow {
+  background: #f2f2f4;
+  color: #b1b1be;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Future dates */
+.dayCell--future {
+  color: #b1b1be;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Selected date — filled navy pill */
+.dayCell--selected {
+  background: #000049;
+  color: #f7f7f8;
+  border-radius: 8px;
+}
+
+.dayCell--selected:hover {
+  background: #000049;
+}
+
+/* ── Footer CTA ── */
+.footer {
+  padding: 8px 20px 20px;
+}

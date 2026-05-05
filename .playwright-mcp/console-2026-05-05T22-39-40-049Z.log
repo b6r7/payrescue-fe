@@ -1,0 +1,2 @@
+[      81ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/favicon.ico:0
+[   13104ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://mcp.figma.com/mcp/capture/754c0472-b6bb-4da5-98e6-f0a45c0db137/submit:0

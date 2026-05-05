@@ -1,0 +1,223 @@
+/*
+ * Affirm Design Tokens — affirm2025Light theme
+ * Sourced from: @affirm/components-core/design-tokens (v26.0.5)
+ * Aligned with DESIGN.md (.cursor/rules/DESIGN.md) — DS Core Library Figma file.
+ *
+ * Base color palette from affirm2025Light/colors.json
+ */
+
+:root {
+  /* ─── Base Color Palette ─────────────────────────────── */
+  /* DESIGN.md §2 primary CTA: #000049 (deep indigo, NOT bright purple) */
+  --base-color-indigo-970: #000049;
+  --base-color-indigo-900: #151579;
+  --base-color-indigo-800: #3131a3;
+  --base-color-indigo-100: #eeeeff;
+
+  --base-color-gray-white: #ffffff;
+  --base-color-gray-050: #f7f7f8;
+  --base-color-gray-100: #efeff1;
+  --base-color-gray-200: #dedee3;
+  --base-color-gray-300: #c8c8d0;
+  --base-color-gray-400: #9999a8;
+  --base-color-gray-500: #74748a;
+  --base-color-gray-600: #5a5a72;
+  --base-color-gray-700: #42425a;
+  --base-color-gray-750: #35354a;
+  --base-color-gray-800: #2a2a3e;
+  --base-color-gray-850: #1f1f30;
+  --base-color-gray-920: #141420;
+  /* DESIGN.md §2 primary text: #121319 (not pure black) */
+  --base-color-gray-970: #121319;
+
+  --base-color-green-100: #e8f7ee;
+  --base-color-green-700: #1a8c47;
+  --base-color-green-850: #0f5c2e;
+
+  --base-color-red-100: #fdecea;
+  --base-color-red-700: #d93025;
+  --base-color-red-800: #b02820;
+  --base-color-red-850: #c43028;
+
+  --base-color-yellow-100: #fff8e1;
+  --base-color-yellow-700: #b07d00;
+
+  /* ─── Semantic Color Tokens ──────────────────────────── */
+  --components-color-background-interactive-default: var(--base-color-indigo-970);
+  --components-color-background-interactive-default-hover: var(--base-color-indigo-800);
+  --components-color-background-interactive-default-pressed: var(--base-color-indigo-900);
+  --components-color-background-interactive-default-disabled: var(--base-color-gray-200);
+  --components-color-background-primary: var(--base-color-gray-white);
+  --components-color-background-secondary: var(--base-color-gray-050);
+  --components-color-background-tertiary: var(--base-color-gray-100);
+  --components-color-background-positive: var(--base-color-green-100);
+  --components-color-background-critical: var(--base-color-red-100);
+  --components-color-background-attention: var(--base-color-yellow-100);
+  --components-color-background-brand-indigo: var(--base-color-indigo-100);
+
+  /* DESIGN.md §2 border/primary: #cccdd4 (light, subtle — not medium gray) */
+  --components-color-border-default: #cccdd4;
+  --components-color-border-default-disabled: var(--base-color-gray-300);
+  --components-color-border-default-hover: var(--base-color-gray-400);
+  --components-color-border-default-pressed: var(--base-color-gray-600);
+  --components-color-border-interactive-default: var(--base-color-indigo-970);
+  --components-color-border-interactive-default-disabled: var(--base-color-gray-300);
+  --components-color-border-critical: var(--base-color-red-700);
+
+  --components-color-foreground-primary: var(--base-color-gray-970);
+  --components-color-foreground-secondary: var(--base-color-gray-600);
+  --components-color-foreground-tertiary: var(--base-color-gray-500);
+  --components-color-foreground-on-interactive: var(--base-color-gray-white);
+  --components-color-foreground-on-interactive-disabled: var(--base-color-gray-500);
+  --components-color-foreground-positive: var(--base-color-green-850);
+  --components-color-foreground-critical: var(--base-color-red-850);
+  --components-color-foreground-attention: var(--base-color-yellow-700);
+  --components-color-foreground-interactive-default: var(--base-color-indigo-970);
+  --components-color-foreground-interactive-default-disabled: var(--base-color-gray-400);
+
+  /* ─── Spacing ────────────────────────────────────────── */
+  --size-025: 2px;
+  --size-050: 4px;
+  --size-075: 6px;
+  --size-100: 8px;
+  --size-150: 12px;
+  --size-200: 16px;
+  --size-300: 24px;
+  --size-400: 32px;
+  --size-500: 40px;
+  --size-700: 56px;
+  --size-800: 64px;
+
+  --components-spacing-xxxxs: var(--size-025);
+  --components-spacing-xxxs: var(--size-050);
+  --components-spacing-xxs: var(--size-075);
+  --components-spacing-xs: var(--size-100);
+  --components-spacing-sm: var(--size-150);
+  --components-spacing-md: var(--size-200);
+  --components-spacing-lg: var(--size-300);
+  --components-spacing-xl: var(--size-400);
+  --components-spacing-xxl: var(--size-500);
+  --components-spacing-xxxl: var(--size-700);
+  --components-spacing-xxxxl: var(--size-800);
+
+  /* Legacy spacing aliases (used in product-flows) */
+  --spacing-x-small: var(--size-050);
+  --spacing-small: var(--size-100);
+  --spacing-medium: var(--size-200);
+  --spacing-large: var(--size-300);
+  --spacing-x-large: var(--size-400);
+  --spacing-xx-large: var(--size-500);
+
+  /* ─── Radius ─────────────────────────────────────────── */
+  --radius-onsurface-default: var(--size-100);
+  --radius-onsurface-inset: var(--size-025);
+  --radius-onpage-default: var(--size-200);
+  --radius-elevatedsurface-default: var(--size-300);
+
+  /* ─── Typography ─────────────────────────────────────── */
+  /* DESIGN.md §3: SF Pro fallbacks — never Inter as primary fallback */
+  --font-family-display: 'Axiforma for Affirm', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family-body: 'Calibre', 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-monospace: 'Alma Mono', 'Courier New', Courier, monospace;
+
+  --semantic-size-body-small: 14px;
+  --semantic-size-body-medium: 16px;
+  --semantic-size-body-large: 18px;
+  --semantic-size-heading-sm: 20px;
+  --semantic-size-heading-md: 24px;
+  --semantic-size-heading-lg: 28px;
+  --semantic-size-heading-xl: 32px;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ─── DS Typography Scale — line-heights & letter-spacings ───
+   * Source: AFFIRM DS CORE LIBRARY (pypC8nTqembCVoO66eSHRn)
+   * Extracted: May 5, 2026
+   * ─────────────────────────────────────────────────────────── */
+
+  /* Additional font sizes not in the heading/body scale above */
+  --size-body-xlarge:  20px;  /* body-XLarge */
+  --size-comp-xsmall:  12px;  /* component/XSmall */
+
+  /* Headline line-heights (Axiforma for Affirm) */
+  --lh-headline-small:   24px;  /* headline-Small  18/24  */
+  --lh-headline-medium:  32px;  /* headline-Medium 24/32  */
+  --lh-headline-large:   44px;  /* headline-Large  32/44  */
+  --lh-headline-xlarge:  54px;  /* headline-XLarge 40/54  */
+
+  /* Headline letter-spacings */
+  --ls-headline-small:    0px;     /* headline-Small  */
+  --ls-headline-medium:  -0.25px;  /* headline-Medium */
+  --ls-headline-large:   -0.5px;   /* headline-Large  */
+  --ls-headline-xlarge:  -1px;     /* headline-XLarge */
+
+  /* Body line-heights (Calibre, paragraph rhythm) */
+  --lh-body-xlarge:  30px;  /* body-XLarge 20/30 */
+  --lh-body-large:   27px;  /* body-Large  18/27 */
+  --lh-body-medium:  24px;  /* body-Medium 16/24 */
+  --lh-body-small:   21px;  /* body-Small  14/21 */
+
+  /* Component/singleline line-heights (tighter, for UI chrome) */
+  --lh-comp-xlarge:  28px;  /* comp-XLarge  20/28 */
+  --lh-comp-large:   24px;  /* comp-Large   18/24 */
+  --lh-comp-medium:  20px;  /* comp-Medium  16/20 */
+  --lh-comp-small:   18px;  /* comp-Small   14/18 */
+  --lh-comp-xsmall:  16px;  /* comp-XSmall  12/16 */
+
+  /* ─── Motion ─────────────────────────────────────────── */
+  --curve-ease: cubic-bezier(0.35, 0, 0.2, 1);
+  --curve-ease-out: cubic-bezier(0.19, 1, 0.22, 1);
+  --time-quick: 0.15s;
+  --time-medium: 0.3s;
+  --time-long: 0.6s;
+
+  /* ─── Altitude (shadows) ─────────────────────────────── */
+  --altitude-1: 0 2px 4px 0 rgba(16, 24, 32, 0.08);
+  --altitude-2: 0 4px 8px 0 rgba(16, 24, 32, 0.08);
+  --altitude-3: 0 8px 16px 0 rgba(16, 24, 32, 0.08);
+
+  /* ─── UPay layout ───────────────────────────────── */
+  --upay-max-width: 400px;
+  --upay-horizontal-padding: var(--components-spacing-md);
+  --upay-card-padding: var(--components-spacing-xl);
+
+  /* ─── DESIGN.md canonical aliases (§9 CSS Custom Properties) ──────
+   * Authoritative names from DS Core Library. Use these in new code
+   * when adding values not yet in the token system above.
+   * ─────────────────────────────────────────────────────────────── */
+
+  /* Brand */
+  --affirm-primary:          #000049;
+  --affirm-primary-hover:    #3131a3;
+  --affirm-primary-pressed:  #151579;
+  --affirm-brand-accent:     #4a4af4;
+
+  /* Backgrounds */
+  --bg-page:    #f8f8fa;
+  --bg-card:    #ffffff;
+  --bg-surface: #f8f8fa;
+  --bg-inset:   #edeef2;
+  --bg-inverse: #121319;
+  --bg-brand:   #ccd6ff;
+
+  /* Text */
+  --text-primary:   #121319;
+  --text-secondary: #5f6272;
+  --text-inverse:   #ffffff;
+  --text-link:      #1b0d7c;
+  --text-disabled:  #9797a8;
+
+  /* Status */
+  --color-success:  #007832;
+  --color-critical: #b4193f;
+  --color-warning:  #8b5500;
+  --color-info:     #196b88;
+
+  /* Borders */
+  --border-primary:   #cccdd4;
+  --border-secondary: #dddee2;
+  --border-disabled:  #b1b1be;
+}

@@ -1,0 +1,309 @@
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--components-spacing-xxs);
+}
+
+.heading {
+  font-family: var(--font-family-display);
+  font-size: var(--semantic-size-heading-md);     /* headline-Medium: 24px */
+  font-weight: var(--font-weight-semibold);        /* 600 — SemiBold */
+  color: var(--components-color-foreground-primary);
+  line-height: var(--lh-headline-medium);          /* 32px */
+  letter-spacing: var(--ls-headline-medium);       /* -0.25px */
+}
+
+.subheading {
+  font-size: var(--semantic-size-body-medium);
+  color: var(--components-color-foreground-secondary);
+  line-height: var(--lh-body-medium);              /* body-Medium: 24px */
+}
+
+
+/* ── Path toggle trigger (I can't get into my email / Use my email instead) */
+.pathToggleTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);      /* 14px */
+  font-weight: var(--font-weight-medium);          /* 500 */
+  line-height: var(--lh-comp-small);               /* 18px */
+  color: var(--components-color-foreground-interactive-default);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+
+.pathToggleTrigger:hover { opacity: 0.7; }
+
+.pathToggleTrigger:focus-visible {
+  outline: 2px solid var(--components-color-foreground-interactive-default);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── DOB + ZIP two-column row ────────────────────────── */
+.dobZipRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--components-spacing-sm, 12px);
+}
+
+/* ── Loan ID group + help ─────────────────────────────── */
+.loanIdGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Anchor for the tooltip — position:relative so tooltip can be absolute */
+.helpAnchor {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.loanIdHelpTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);      /* body-Small-Link: 14px */
+  font-weight: var(--font-weight-medium);          /* 500 */
+  line-height: var(--lh-comp-small);               /* 18px */
+  color: var(--components-color-foreground-interactive-default);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+
+.loanIdHelpTrigger:hover { opacity: 0.7; }
+
+.loanIdHelpTrigger:focus-visible {
+  outline: 2px solid var(--components-color-foreground-interactive-default);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Desktop tooltip ──────────────────────────────────── */
+.loanIdTooltip {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 272px;
+  background: var(--components-color-background-primary);
+  border: 1px solid var(--components-color-border-default);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: var(--altitude-3);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Arrow pointing up toward the trigger */
+.loanIdTooltip::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  right: 14px;
+  width: 8px;
+  height: 8px;
+  background: var(--components-color-background-primary);
+  border-left: 1px solid var(--components-color-border-default);
+  border-top: 1px solid var(--components-color-border-default);
+  transform: rotate(45deg);
+}
+
+/* ── Shared help content styles ───────────────────────── */
+.loanIdHelpRow {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.loanIdHelpIcon {
+  font-size: 15px;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.loanIdHelpTitle {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);      /* body-Small-HighImp: 14px */
+  font-weight: var(--font-weight-semibold);        /* 600 */
+  color: var(--components-color-foreground-primary);
+  margin: 0 0 2px;
+  line-height: var(--lh-body-small);               /* 21px */
+}
+
+.loanIdHelpBody {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);      /* body-Small: 14px */
+  line-height: var(--lh-body-small);               /* 21px */
+  color: var(--components-color-foreground-secondary);
+  margin: 0;
+}
+
+.loanIdCode {
+  font-family: 'SF Mono', 'Menlo', monospace;
+  font-size: 0.75rem;
+  background: rgba(26, 26, 110, 0.08);
+  color: var(--components-color-foreground-interactive-default);
+  padding: 1px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* ── Mobile bottom drawer ─────────────────────────────── */
+.helpBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 18, 0.45);
+  z-index: 500;
+  display: flex;
+  align-items: flex-end;
+}
+
+.helpSheet {
+  background: var(--components-color-background-primary);
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  padding: 0 0 max(24px, env(safe-area-inset-bottom));
+}
+
+.helpSheetHandle {
+  width: 36px;
+  height: 4px;
+  background: var(--components-color-border-default);
+  border-radius: 2px;
+  margin: 12px auto 0;
+}
+
+.helpSheetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+}
+
+.helpSheetTitle {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-large);      /* headline-Small equiv: 18px */
+  font-weight: var(--font-weight-semibold);        /* 600 */
+  line-height: var(--lh-headline-small);           /* 24px */
+  color: var(--components-color-foreground-primary);
+}
+
+.helpSheetClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--components-color-background-secondary);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--components-color-foreground-secondary);
+  transition: background var(--time-quick);
+}
+
+.helpSheetClose:hover { background: var(--components-color-background-tertiary); }
+
+.helpSheetBody {
+  padding: 4px 20px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── Secondary outlined payer toggle CTA ─────────────── */
+.payerToggleBtn {
+  width: 100%;
+  padding: 0;
+  height: 52px;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-medium);     /* comp-Medium-HighImp: 16px */
+  font-weight: var(--font-weight-semibold);        /* 600 */
+  line-height: var(--lh-comp-medium);              /* 20px */
+  color: var(--base-color-indigo-970, #000049);
+  background: transparent;
+  border: 2px solid var(--base-color-indigo-970, #000049);
+  border-radius: 100px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+
+.payerToggleBtn:hover {
+  background: rgba(0, 0, 73, 0.05);
+}
+
+.payerToggleBtn:active {
+  background: rgba(0, 0, 73, 0.1);
+}
+
+.payerToggleBtn:focus-visible {
+  outline: 2px solid var(--base-color-indigo-970, #000049);
+  outline-offset: 3px;
+}
+
+/* ── Third-party method note ─────────────────────────────── */
+.thirdPartyMethodNote {
+  padding: var(--components-spacing-xs) var(--components-spacing-sm);
+  font-size: var(--semantic-size-body-small);
+  color: var(--components-color-foreground-secondary);
+  background-color: var(--components-color-background-secondary);
+  border: 1px solid var(--components-color-border-default);
+  border-radius: var(--radius-onsurface-default);
+  line-height: 1.4;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--components-spacing-md);
+}
+
+
+.calendarBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  color: var(--components-color-foreground-tertiary);
+  border-radius: var(--radius-onsurface-inset);
+  transition: color var(--time-quick) var(--curve-ease);
+}
+
+.calendarBtn:hover {
+  color: var(--components-color-foreground-interactive-default);
+}
+
+
+.security {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--components-spacing-xxs);
+  font-size: 12px;
+  color: var(--components-color-foreground-tertiary);
+}
+
+.security svg {
+  flex-shrink: 0;
+  opacity: 0.5;
+}

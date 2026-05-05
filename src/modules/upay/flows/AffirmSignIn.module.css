@@ -1,0 +1,359 @@
+/* Matches affirm.com/user/signin — always in the failed-login error state */
+
+.root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #f0f0f5;
+}
+
+/* ── Top bar — full-width, matches Affirm.com ────────── */
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e8;
+}
+
+/* ── Center content to same width as FlowCard ────────── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 24px 48px;
+}
+
+.content {
+  width: 100%;
+  max-width: var(--upay-max-width, 400px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Avatar ──────────────────────────────────────────── */
+.avatar {
+  margin-bottom: 12px;
+}
+
+/* ── Heading ─────────────────────────────────────────── */
+.heading {
+  font-family: var(--font-family-display);
+  font-size: var(--semantic-size-heading-md);     /* headline-Medium: 24px */
+  font-weight: var(--font-weight-semibold);        /* 600 */
+  color: #060809;
+  letter-spacing: var(--ls-headline-medium);       /* -0.25px */
+  line-height: var(--lh-headline-medium);          /* 32px */
+  margin: 0 0 16px;
+}
+
+/* ── Phone field ─────────────────────────────────────── */
+.phoneField {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: #ffffff;
+  border: 1.5px solid #d4d4e0;
+  border-radius: 8px;
+  padding: 10px 16px 12px;
+  margin-bottom: 12px;
+  transition: border-color 0.15s;
+}
+
+.phoneField:focus-within {
+  border-color: #1a1a6e;
+  box-shadow: 0 0 0 3px rgba(26, 26, 110, 0.1);
+}
+
+.phoneLabel {
+  font-family: var(--font-family-body, system-ui, sans-serif);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a8a9a;
+}
+
+.phoneInput {
+  font-family: var(--font-family-body, system-ui, sans-serif);
+  font-size: 16px;
+  color: #060809;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  width: 100%;
+}
+
+.phoneInput::placeholder {
+  color: #b8b8c8;
+}
+
+/* ── Update link ─────────────────────────────────────── */
+.updateLink {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);      /* body-Small-Link: 14px */
+  font-weight: var(--font-weight-medium);          /* 500 */
+  line-height: var(--lh-body-small);               /* 21px */
+  color: #1a1a6e;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  margin-bottom: 20px;
+}
+
+.updateLink:hover { color: #4a4af4; }
+
+/* ── Button group ────────────────────────────────────── */
+.btnGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* ── Continue button (primary, no lock icon) ─────────── */
+.continueBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 52px;
+  background: var(--components-color-background-interactive-default); /* #000049 */
+  color: #ffffff;
+  border: none;
+  border-radius: 100px;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-medium);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--lh-comp-medium);
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.continueBtn:hover:not(:disabled) {
+  background: var(--components-color-background-interactive-default-hover);
+}
+
+.continueBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ── Update phone button (secondary, outline) ────────── */
+.updatePhoneBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 52px;
+  background: transparent;
+  color: var(--components-color-background-interactive-default, #000049);
+  border: 1.5px solid var(--components-color-background-interactive-default, #000049);
+  border-radius: 100px;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-medium);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--lh-comp-medium);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.updatePhoneBtn:hover {
+  background: rgba(0, 0, 73, 0.05);
+}
+
+/* ── Pay without login (tertiary, text link) ─────────── */
+.payWithoutLoginBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 44px;
+  background: none;
+  border: none;
+  color: var(--components-color-background-interactive-default, #000049);
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-medium);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--lh-comp-medium);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity 0.15s;
+}
+
+.payWithoutLoginBtn:hover {
+  opacity: 0.7;
+}
+
+/* ════════════════════════════════════════════════════════
+   INVALID PHONE MODAL OVERLAY
+   ════════════════════════════════════════════════════════ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(25, 25, 37, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--components-spacing-md, 16px);
+  z-index: 200;
+}
+
+.modal {
+  background: #ffffff;
+  border-radius: var(--radius-elevatedsurface-default, 24px);
+  padding: var(--components-spacing-lg, 24px);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--components-spacing-md, 16px);
+}
+
+.modalCloseRow {
+  display: flex;
+  align-items: flex-start;
+}
+
+.modalClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: -14px -14px 0;
+  background: none;
+  border: none;
+  border-radius: 24px;
+  cursor: pointer;
+  color: var(--components-color-foreground-primary);
+  transition: background 0.15s;
+}
+
+.modalClose:hover { background: var(--components-color-background-tertiary); }
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--components-spacing-md, 16px);
+}
+
+.modalIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.modalTitle {
+  font-family: var(--font-family-display);
+  font-size: var(--semantic-size-body-large, 18px);
+  font-weight: var(--font-weight-bold, 700);
+  line-height: var(--lh-headline-small, 24px);
+  color: var(--components-color-foreground-primary);
+  margin: 0;
+  text-align: center;
+}
+
+.modalBody {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-large, 18px);
+  font-weight: var(--font-weight-regular, 400);
+  line-height: var(--lh-body-large, 27px);
+  color: var(--components-color-foreground-primary);
+  margin: 0;
+  text-align: center;
+}
+
+.modalFooter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--components-spacing-md, 16px);
+}
+
+.modalPrimary {
+  width: 100%;
+  height: 52px;
+  background: var(--components-color-background-interactive-default);
+  color: var(--components-color-foreground-on-interactive, #f7f7f8);
+  border: none;
+  border-radius: 100px;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-large, 18px);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: var(--lh-comp-large, 24px);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.modalPrimary:hover { background: var(--components-color-background-interactive-default-hover); }
+
+.modalSecondary {
+  width: 100%;
+  height: 52px;
+  background: transparent;
+  color: #000061;
+  border: 1px solid var(--components-color-background-interactive-default);
+  border-radius: 100px;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-large, 18px);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: var(--lh-comp-large, 24px);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.modalSecondary:hover { background: rgba(0, 0, 73, 0.05); }
+
+/* ── SMS note ────────────────────────────────────────── */
+.smsNote {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);      /* body-Small: 14px */
+  line-height: var(--lh-body-small);               /* 21px */
+  color: #6b6e7e;
+  margin: 0 0 18px;
+}
+
+/* ── Create account link ─────────────────────────────── */
+.createLink {
+  display: block;
+  text-align: center;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);      /* body-Small-Link: 14px */
+  font-weight: var(--font-weight-medium);          /* 500 */
+  line-height: var(--lh-body-small);               /* 21px */
+  color: #1a1a6e;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  margin-bottom: 28px;
+}
+
+.createLink:hover { color: #4a4af4; }
+
+/* ── Legal disclaimer ────────────────────────────────── */
+.disclaimer {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);      /* 14px */
+  font-weight: var(--font-weight-regular);         /* 400 */
+  line-height: var(--lh-body-small);               /* 21px */
+  color: var(--components-color-foreground-secondary); /* #5f6272 */
+  margin: 0;
+  text-align: left;
+}
+
+.disclaimerLink {
+  color: #1b0d7c;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: var(--font-weight-medium);          /* 500 — matches image */
+}
+
+.disclaimerLink:hover { color: #4a4af4; }
+
+

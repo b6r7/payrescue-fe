@@ -1,0 +1,28 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  padding: var(--components-spacing-md);
+}
+
+.card {
+  width: 100%;
+  max-width: var(--upay-max-width);
+  background-color: var(--components-color-background-primary);
+  border-radius: var(--radius-elevatedsurface-default);
+  box-shadow: var(--altitude-2);
+  padding: var(--upay-card-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--components-spacing-lg);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  color: var(--components-color-foreground-primary);
+  margin-bottom: var(--components-spacing-xs);
+}

@@ -1,0 +1,259 @@
+---
+description: Payment Rescue hackathon design doc — full product spec, user journeys, architecture, and demo scenarios. Reference this for any feature scoping, identity logic, payment flow decisions, or demo scripting.
+alwaysApply: false
+tags: [hackathon, payment-rescue, self-serve, repayments, identity, ai]
+created: 2026-05-02
+updated: 2026-05-05
+domain: payments
+---
+
+# Payment Rescue
+
+Hackathon design doc. Team: Rachel, Anupama, Caio, Bart, Krzysztof.
+
+## One-liner
+
+A self-serve identifier flow that lets a user make a payment on a plan without logging in. Even users locked out of their account can pay if they can prove who they are with a few lightweight identifiers. An AI risk-scoring layer (Trust Pulse) is a stretch goal, layered on top if hackathon time permits.
+
+## Insight
+
+Affirm has built one auth gate for two trust contracts. Logging in grants capabilities. Paying fulfills an obligation. The gate optimizes for the wrong one: paying is harder than defaulting, and we delete the purest signal in lending, a user trying to pay us when we've made it hard.
+
+The locked-out user is the most extreme case (3.9M users, 89% phone-related). The actual problem is broader: anyone with a payment due, hitting friction.
+
+## Concrete moment
+
+A user with a payment due can't get into their account (lost phone, forgot password, locked-out). They go to Payment Rescue (bookmarked, in a comms footer, or surfaced on the support page). They enter a few lightweight identifiers, pass a verification check, and pay one loan. No full login, no support call.
+
+## What we ship (M1 wedge)
+
+One surface, one mechanism, one moment, one action.
+
+- **Surface:** a self-serve URL (/payment-rescue).
+- **Mechanism:** identifier-based form. Trust Pulse risk scoring is a stretch goal layered on top.
+- **Moment:** payment due or past due, user can't or won't log in.
+- **Action:** make a payment on a plan.
+
+**UX commitments (security posture):**
+
+- Show only the plan being paid. No other plans.
+- No wallet inventory shown. The user always adds a new payment instrument for this one payment. No card-on-file surfaced, no instrument-on-file picker.
+- Payment instrument options at the pay step:
+  - Apple Pay (frontend-mocked in M1; real production v1)
+  - Debit card (manual entry) (real backend in M1; charged via payments_connect)
+  - Bank account / manual ACH (frontend-mocked in M1; real production v1)
+- All instruments are single-use only, not saved to the user's wallet. The session was authorized for one payment, not for account changes. Saving requires explicit opt-in, which is M2.
+- No account details, settings, shopping, or recommendations.
+- Ephemeral session, scoped to one payment on one loan.
+- Confirmation screen ends with a recovery CTA pointing the user at full account recovery (SSPC). Rescue solves the immediate payment; recovery is the long-term fix and we hand the user off explicitly.
+
+## Self-serve identifiers (4 factors, 5 valid pairs)
+
+The user provides any 2 of these factors. At least one factor must be a lookup (Loan ID or Email) so the system can resolve the right user.
+
+| Factor  | Type                 | Notes                                                                 |
+|---------|----------------------|-----------------------------------------------------------------------|
+| Loan ID | Lookup               | Resolves directly to a loan                                           |
+| Email   | Lookup (with OTP)    | Resolves to a user. Triggers an email-OTP step for ownership proof.   |
+| DOB     | Confirmation         | Knowledge factor (effectively public)                                 |
+| SSN4    | Confirmation         | Knowledge factor (effectively public via breach corpora)              |
+
+**Valid pairs:**
+
+| Pair              | OTP step?       | Security reviewed?          |
+|-------------------|-----------------|-----------------------------|
+| Email + Loan ID   | Yes (email OTP) | Yes - approved              |
+| SSN9 + DOB + ZIP  | No              | Yes - tentatively approved  |
+
+Tim: "The actions we're permitting a user to have are low-risk, so we can have lower-risk items."
+
+**Failure handling:**
+
+- If any factor doesn't validate against records, redirect to customer support. No retry loops beyond standard rate-limit allowances.
+- "Failure" includes: pair doesn't match, email OTP wrong/expired, suspected enumeration.
+- Phone is not a factor. Doesn't fit the headline persona (89% of lockouts are phone-related).
+- last-4 of card is no longer a factor. The payment step uses a freshly added instrument every time, so card-on-file isn't surfaced.
+- ZIP is not a user-entered factor. If Trust Pulse ships, it feeds the risk score silently (ZIP-of-record vs. IP geolocation).
+- No KBA in M1. Email OTP replaces KBA as the verification step.
+
+## User journeys
+
+Four journeys define what gets built.
+
+### J1: Locked-out Maria (the headline case)
+
+**Trigger.** Maria has a payment due and can't get into her account because she recently changed her phone number. She finds Payment Rescue through a "Can't log in? Pay your loan" affordance on the login screen itself.
+
+**Steps:**
+1. Maria lands on /payment-rescue. Form asks for an identifier pair. Default surfaced: Email + Loan ID. Maria fills both and submits.
+2. Email OTP step: server sends a 4-digit code to Maria's email. Maria enters it.
+3. On OTP pass: payment screen renders with merchant + amount + due date + instrument selector (Apple Pay, debit card, ACH).
+4. Maria adds a debit card, taps Pay. Payment succeeds.
+5. Confirmation screen shows amount paid, time, next payment + date, and a clear CTA to fully recover the account (start SSPC / set up new device).
+
+**Build:**
+- Self-serve form, identifier-pair UI (Email + Loan ID, or SSN9 + DOB + ZIP)
+- Lookup endpoint: constant-time, identical-response on miss vs. mismatch, rate-limited
+- Multi-loan disambiguation logic (see J2)
+- Email OTP send + verify (replaces KBA)
+- Scoped session token mint after OTP passes
+- Payment screen component (loan card + pay CTA + instrument selector)
+- New-instrument flow: Apple Pay (frontend-mocked), debit card (real, charges via payments_connect mocked), ACH (frontend-mocked)
+- Failure path: any pair miss, OTP miss, or enumeration suspicion → redirect to customer support phone number
+- "Wrong loan?" exit link on payment screen → routes to full login (never to a loan picker)
+- Post-payment recovery CTA on the confirmation screen → routes to SSPC entry point
+
+**Stretch enhancement (Trust Pulse):** if the AI risk-scoring service ships, Trust Pulse low risk lets a strong-pair user (Email + Loan ID) fast-path past the OTP step.
+
+### J2: Multi-loan Marcus (the disambiguation case)
+
+Same user-visible flow but with SSN9 + DOB + ZIP. The work is server-side: pick which loan to surface when one user has many.
+
+**Resolution rule:**
+
+| Step | Rule |
+|------|------|
+| 1 | Resolve user from the identifier pair |
+| 2 | List user's loans with payments due (or recently due) |
+| 3 | 0 loans due → render the "you're all caught up" state |
+| 4 | 1 loan due → surface it |
+| 5 | Multiple loans due → most overdue → soonest due |
+
+**UX commitments:**
+- User never sees a list of loans.
+- All rejection paths return identical responses (no leak of which step failed).
+- "Wrong loan?" link on the payment screen routes to full login, never to a loan picker.
+
+## Trust Pulse (stretch goal)
+
+Status: stretch goal for the hackathon. Build only if M1 is rock-solid first.
+
+With KBA removed from M1, the Trust Pulse stretch is now bounded to a single job:
+
+**Risk scoring.** LLM consumes device, IP, geo, ZIP-of-record vs. IP-geo, behavioral, loan-owner profile, request anomalies. Outputs `{score, tier, reasoning}`. Used to gate a fast lane (strong pair like Email + Loan ID with low score → skip the email OTP step).
+
+Trust Pulse does not make the final auth decision. Its score feeds into Affirm's existing risk_framework, which decides allow / escalate / block. AI augments existing decision authority rather than replacing it.
+
+**LLM:** Anthropic Claude (claude-sonnet-4-6 for hackathon, claude-opus-4-7 for max-quality reasoning). Caio has Anthropic API access. Implementation pattern: LangChain ChatAnthropic.
+
+**Demo angle if Trust Pulse ships:** "Trust Pulse scored this request as low-risk: known device, trusted geo. AI advises, risk_framework decides." Without it, the demo is a clean lockout-recovery story without the AI beat.
+
+## Architecture (reuse map, post eng review)
+
+| Need | Real primitive | Hackathon path |
+|------|---------------|----------------|
+| Self-serve form UX | Form patterns in web-ux/product-flows/src/modules/identity/ and repayment/ | Lift the presentational pieces visually. Do not import the orchestrator containers. |
+| Email OTP UI | OTP code-entry pattern in web-ux/product-flows/src/modules/email-otp/ | Lift the visual; build a 4-digit code-entry component. |
+| Single-payment step | single-payment-initiated/Component.tsx, single-payment-confirmed/Component.tsx | Lift visual components from web-ux/product-flows/src/modules/repayment/components/. |
+| Add-instrument step | web-ux/product-flows/src/modules/add-instrument/ (debit card form) | Lift the debit card form; mock Apple Pay and ACH on the frontend. |
+| Logged-out wrapper | identity-app/server is a @affirm/server-mock dev fixture | For the prototype, the mock fixture is fine. |
+| Scoped session token | clavis-jwt's JWTController.generateJWT() requires a sessionAri | Hackathon: hand-roll an HS256 token. Production v1: solve via "service session" pattern with Identity team. |
+| Flow orchestration | all-the-things/deployable/repayment-experience/ is a stub | Hackathon prototype is REST (Python FastAPI), not gRPC. |
+| LLM calls (Trust Pulse only) | ml2/libs/genai/langchain exists | Plain LangChain with Anthropic: `ChatAnthropic(model="claude-sonnet-4-6", temperature=0)`. |
+| Payment execution (debit card only) | payments_connect real entry | Mock at the client boundary: stub returns `{status: "succeeded", confirmation_id, ts}`. No real money in the demo. |
+| Rate limiting | affirm.counters2.client.client_v1.check_ratelimit_and_increment_v1 | Mandatory for the demo to defend the lookup endpoint against enumeration. |
+
+No new service. We compose existing pieces and fill in the empty repayment-experience deployable with the Payment Rescue RPCs.
+
+## Hackathon prototype (2 days, this week)
+
+**Stack:** Python FastAPI service + Vite + React + Tailwind frontend, both running locally. REST API, not gRPC. No imports from web-ux/product-flows. Single hackathon repo at payment-rescue-hackathon/.
+
+**Core build (must ship for the demo):**
+
+| Item | Owner | Real or mocked |
+|------|-------|----------------|
+| Frontend flow: identifier form → email OTP → payment screen → success/blocked | Krzysztof | Real composition, mock backend calls where needed |
+| Backend handler (Python FastAPI): POST /api/lookup, /api/otp/send, /api/otp/verify, /api/pay. HS256 token mint. | Caio | Real handler, real token, mock payments_connect |
+| Email OTP send: SendGrid HTTP API direct | Krzysztof / Rachel | Real email to test inboxes |
+| Payment instrument flows: Apple Pay (frontend-mocked), debit card (real backend), ACH (frontend-mocked) | Krzysztof | Debit card real on backend; Apple Pay + ACH frontend-only |
+| Customer-support redirect surface | Rachel | Real |
+| Three demo scenarios scripted: J1 Maria (success), J2 Marcus (multi-loan), J3 Eve (blocked) | All | Scripted with seeded payloads |
+
+**Stretch build (only if core is rock-solid):**
+
+| Item | Owner | What it adds |
+|------|-------|--------------|
+| Trust Pulse Python service: risk scoring via LangChain ChatAnthropic | Bart | AI risk-scoring narrative on stage; fast lane for low-risk attempts |
+
+**What gets cut from the prototype:** real MessageTemplate registration, real payments_connect integration, fraud-middleware bypass, production observability, real device fingerprinting, KBA flow, magic-link entry path, real Apple Pay / ACH backends.
+
+## Post-hackathon production path (~1 quarter, if we win)
+
+| Item | Effort |
+|------|--------|
+| Productionize payment-rescue product-flow module | ~1-2 weeks |
+| Productionize payment_rescue flow handler in repayment-experience | ~2 weeks |
+| Trust Pulse productionization | ~2 weeks |
+| Knowledge question library expansion | ~1 week |
+| Fraud-middleware bypass / route allowlist | rolling, calendar dependency |
+| Compliance pre-read and sign-off | rolling, calendar dependency |
+| Future scope: magic-link entry path | separate workstream |
+
+Total engineering for M1: ~5-7 weeks.
+
+## Risks
+
+- **Fraud middleware** blocks ephemeral sessions by default. Need explicit route allowlist with risk-team sign-off.
+- **Auth-light money movement** has no codebase precedent. Compliance pre-read needed.
+- **Discoverability** is the M1 demand-gen risk. Without magic-link entry from comms, users have to find Payment Rescue themselves.
+- **No prompt-management service.** Prompts are code-defined. Acceptable for hackathon; flag as production gap.
+- **Email OTP delivery latency.** Set user expectation in copy. Have a "resend code" affordance.
+- **No fallback if user can't access email either.** Only path is customer support. Document this as the explicit boundary.
+
+## Out of scope (M1)
+
+- Magic-link entry path (deferred to post-M1)
+- Multi-loan view, paying multiple loans at once
+- Wallet inventory / saved instrument list
+- Account recovery, settings, autopay enrollment
+- Voice bot / AI conversational front door
+- International identifiers (US-only for prototype)
+
+## Demo flow
+
+Three (or four) scenarios on stage:
+
+- **J1, Locked-out Maria:** Email + Loan ID → email OTP → adds debit card → paid.
+- **J2, Multi-loan Marcus:** SSN9 + DOB + ZIP, server picks the right loan via "most overdue → soonest due."
+- **J3, Attacker Eve:** Email + SSN4 (phished). OTP fails (Eve doesn't have the inbox). Redirect to customer support.
+- **(Optional) J4, All-caught-up Alex:** valid pair + OTP pass, but no loans due. "You're all caught up" success state.
+
+If Trust Pulse stretch ships: swap scenario 1 for "Email + Loan ID → Trust Pulse low → fast lane (skip OTP) → paid in seconds."
+
+## Hackathon judging fit
+
+- **Real problem, sharp insight (50%).** Anchored in 3.9M lockouts, 80K/mo with payment due in 7d of failed SSPC, 330K calls/yr to pay by phone. Insight reframes from "operational friction" to "we delete the purest signal in lending."
+- **Ship-ready by design (50%).** Reuses ~80% of needed primitives. New work is bounded to one product-flow module, one flow type, one AI component. Production v1 fits in a quarter. Real risks named.
+
+## Future scope: magic-link entry
+
+Token shape:
+```json
+{
+  "sub":   "loan_ari",
+  "aud":   "payment_rescue",
+  "scope": "pay_one",
+  "exp":   "now + 15min",
+  "jti":   "uuid",
+  "iat":   "now",
+  "src":   "email_collections"
+}
+```
+
+Security properties: 15-min TTL, single-use (jti recorded), scope-locked, loan-bound. Forwarded link from a new device → Trust Pulse score rises → graceful degradation to the self-serve verification path.
+
+Failure cases all fall back to self-serve: expired, replayed, or invalid tokens land on the Payment Rescue self-serve form with a generic message.
+
+## Naming
+
+- **Internal AI engine:** Trust Pulse
+- **Consumer-facing experience:** Payment Rescue
+
+## Glossary
+
+- **SSPC** — Self-Service Phone Change. Today's account-recovery flow. ~50% fail rate.
+- **IDV** — Identity Verification (e.g. Onfido). Out of scope for M1.
+- **KBA** — Knowledge-Based Authentication. Removed from M1; email OTP replaces it.
+- **OTP** — One-Time Passcode. M1 uses email OTP as the proof-of-control gate.
+- **Trust Pulse** — Internal AI risk-scoring engine. Stretch goal. Advises risk_framework, never the final auth authority.
