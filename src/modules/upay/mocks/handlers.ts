@@ -51,23 +51,22 @@ export const handlers = [
   }),
 
   /**
-   * Identity verification — Loan ID + Email or Loan ID + DOB.
-   * Happy path with email method triggers OTP step.
-   * Happy path with DOB method goes directly to payment.
+   * Identity verification — two methods:
+   *   loan_id_email  → email OTP step
+   *   ssn_dob_zip    → straight to payment (no OTP, knowledge-only)
    */
   http.post('/api/upay/verify-identity', async ({ request }) => {
     await delay(800)
-    const body = await request.json() as { loan_id: string; method: string; payer_type: string; email?: string; dob?: string }
+    const body = await request.json() as { loan_id?: string; method: string; payer_type?: string; email?: string; dob?: string; ssn9?: string; zip?: string }
 
-    // DOB path or third-party payer → straight to payment (no OTP)
-    if (body.method === 'loan_id_dob' || body.payer_type === 'third_party') {
+    if (body.method === 'ssn_dob_zip') {
       return HttpResponse.json<VerifyIdentityResponse>({
         step: STEP.PAYMENT_INITIATED,
         session_token: SESSION_TOKEN,
       })
     }
 
-    // Email verification (self only) → OTP required
+    // loan_id_email → OTP required
     return HttpResponse.json<VerifyIdentityResponse>({
       step: STEP.OTP_ENTRY,
       session_token: SESSION_TOKEN,

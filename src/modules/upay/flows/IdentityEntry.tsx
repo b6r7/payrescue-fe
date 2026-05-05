@@ -1,11 +1,12 @@
 /**
- * Step 3 — Identity Verification
+ * Step 1 — Identity Entry (new default landing)
  *
- * Two security-reviewed paths:
- *   A — Email + Loan ID  → email OTP step
- *   B — SSN9 + DOB + ZIP → direct to payment (no OTP)
+ * A single form with two identifier pairs the user can toggle between:
  *
- * Third-party payers use Loan ID + DOB only (no email/SSN access).
+ *   Pair 1 (default): Email + Loan ID  → email OTP step
+ *   Pair 2 (alt):     SSN9 + DOB + ZIP → direct to payment (no OTP)
+ *
+ * Replaces the previous magic-link landing flow as the entry point.
  */
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
@@ -13,14 +14,13 @@ import { FlowCard } from '@/components/layout/FlowCard'
 import { Button, TextInput, Banner, Color, Emphasis, Size } from '@/components/ui'
 import { DatePickerSheet } from './DatePickerSheet'
 import { apiUrl } from '@/utils/apiBase'
-import type { PayerType, VerifyIdentityResponse } from '../types'
+import type { VerifyIdentityResponse } from '../types'
 import { STEP } from '../types'
 import styles from './VerificationForm.module.css'
 
-type VerificationPath = 'email_loan_id' | 'ssn_dob_zip'
+type Mode = 'email' | 'ssn'
 
 type Props = {
-  prefilledLoanId?: string
   onOTPRequired: (maskedEmail: string, sessionToken: string) => void
   onDirectToPayment: (sessionToken: string) => void
 }
@@ -50,30 +50,20 @@ const formatDob = (raw: string) => {
   return digits
 }
 
-export const VerificationForm = ({
-  prefilledLoanId = '',
-  onOTPRequired,
-  onDirectToPayment,
-}: Props) => {
+export const IdentityEntry = ({ onOTPRequired, onDirectToPayment }: Props) => {
   const isMobile = useIsMobile()
   const helpAnchorRef = useRef<HTMLDivElement>(null)
 
-  const [path, setPath] = useState<VerificationPath>('email_loan_id')
-  const [payerType, _setPayerType] = useState<PayerType>('self')
-  const isThirdParty = payerType === 'third_party'
+  const [mode, setMode] = useState<Mode>('email')
 
-  // Path A fields
+  // Pair 1
   const [email, setEmail] = useState('')
-  const [loanId, setLoanId] = useState(prefilledLoanId)
+  const [loanId, setLoanId] = useState('')
 
-  // Path B fields
+  // Pair 2
   const [ssn9, setSsn9] = useState('')
   const [dob, setDob] = useState('')
   const [zip, setZip] = useState('')
-
-  // Third-party DOB (separate state so it doesn't clobber path B's DOB)
-  const [thirdPartyDob, setThirdPartyDob] = useState('')
-  const [thirdPartyLoanId, setThirdPartyLoanId] = useState(prefilledLoanId)
 
   const [showLoanIdHelp, setShowLoanIdHelp] = useState(false)
   const [showDatePicker, setShowDatePicker] = useState(false)
@@ -90,23 +80,17 @@ export const VerificationForm = ({
     return () => document.removeEventListener('mousedown', handler)
   }, [showLoanIdHelp, isMobile])
 
-  const handleSwitchPath = (next: VerificationPath) => {
-    setPath(next)
+  const handleSwitchMode = (next: Mode) => {
+    setMode(next)
     setError(null)
   }
 
   const validate = (): string | null => {
-    if (isThirdParty) {
-      if (!thirdPartyLoanId.trim()) return "Please enter the account holder's Loan ID"
-      if (!thirdPartyDob.trim()) return "Please enter the account holder's date of birth"
-      return null
-    }
-    if (path === 'email_loan_id') {
+    if (mode === 'email') {
       if (!email.trim()) return 'Please enter your email address'
       if (!loanId.trim()) return 'Please enter your Loan ID'
       return null
     }
-    // ssn_dob_zip
     if (ssn9.replace(/\D/g, '').length < 9) return 'Please enter your full 9-digit Social Security Number'
     if (!dob.trim()) return 'Please enter your date of birth'
     if (zip.length < 5) return 'Please enter your 5-digit ZIP code'
@@ -122,11 +106,7 @@ export const VerificationForm = ({
     setError(null)
 
     try {
-      // NOTE: third-party payer flow is no longer wired through this form —
-      // the loan_id_dob method was removed when the entry point became
-      // IdentityEntry. We default any remaining third-party submission to
-      // the same SSN9+DOB+ZIP method to keep TS narrow + builds passing.
-      const body = path === 'email_loan_id'
+      const body = mode === 'email'
         ? { loan_id: loanId, method: 'loan_id_email', payer_type: 'self', email }
         : { method: 'ssn_dob_zip', payer_type: 'self', ssn9: ssn9.replace(/\D/g, ''), dob, zip }
 
@@ -160,10 +140,7 @@ export const VerificationForm = ({
     }
   }
 
-  const heading = 'Enter your information'
-  const subheading = 'We need some more information to securely pull up your plan.'
-
-  // ── Loan ID help trigger (shared between path A and third-party) ──────────
+  // ── Loan ID help trigger ────────────────────────────────────────────────
   const LoanIdHelpTrigger = (
     <div className={styles.helpAnchor} ref={helpAnchorRef}>
       <button
@@ -219,54 +196,14 @@ export const VerificationForm = ({
     <>
       <FlowCard>
         <div className={styles.copy}>
-          <h1 className={styles.heading}>{heading}</h1>
-          <p className={styles.subheading}>{subheading}</p>
+          <h1 className={styles.heading}>Enter your information</h1>
+          <p className={styles.subheading}>We need some more information to securely pull up your plan.</p>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
 
-          {/* ── THIRD-PARTY PATH ──────────────────────────────── */}
-          {isThirdParty && (
-            <>
-              <div className={styles.loanIdGroup}>
-                <TextInput
-                  label="Account holder's Loan ID"
-                  labelRight={LoanIdHelpTrigger}
-                  placeholder="e.g. LN-20250428-00042"
-                  value={thirdPartyLoanId}
-                  onChange={setThirdPartyLoanId}
-                  isRequired
-                  autoComplete="off"
-                  autoCapitalize="none"
-                  spellCheck={false}
-                />
-              </div>
-              <TextInput
-                label="Account holder's date of birth"
-                type="text"
-                placeholder="MM/DD/YYYY"
-                value={thirdPartyDob}
-                onChange={v => setThirdPartyDob(formatDob(v))}
-                isRequired
-                autoComplete="bday"
-                inputMode="numeric"
-                maxLength={10}
-                rightElement={
-                  <button
-                    type="button"
-                    aria-label="Open date picker"
-                    className={styles.calendarBtn}
-                    onClick={() => setShowDatePicker(true)}
-                  >
-                    <CalendarIcon />
-                  </button>
-                }
-              />
-            </>
-          )}
-
-          {/* ── SELF PATH A: Email + Loan ID ──────────────────── */}
-          {!isThirdParty && path === 'email_loan_id' && (
+          {/* ── PAIR 1: Email + Loan ID ─────────────────────────── */}
+          {mode === 'email' && (
             <>
               <div>
                 <TextInput
@@ -281,7 +218,7 @@ export const VerificationForm = ({
                 <button
                   type="button"
                   className={styles.pathToggleTrigger}
-                  onClick={() => handleSwitchPath('ssn_dob_zip')}
+                  onClick={() => handleSwitchMode('ssn')}
                   tabIndex={0}
                   aria-label="I can't get into my email — switch to Social Security Number verification"
                 >
@@ -293,7 +230,7 @@ export const VerificationForm = ({
                 <TextInput
                   label="Loan ID"
                   labelRight={LoanIdHelpTrigger}
-                  placeholder="e.g. LN-20250428-00042"
+                  placeholder="LN-20250428-00042"
                   value={loanId}
                   onChange={setLoanId}
                   isRequired
@@ -305,8 +242,8 @@ export const VerificationForm = ({
             </>
           )}
 
-          {/* ── SELF PATH B: SSN9 + DOB + ZIP ────────────────── */}
-          {!isThirdParty && path === 'ssn_dob_zip' && (
+          {/* ── PAIR 2: SSN9 + DOB + ZIP ────────────────────────── */}
+          {mode === 'ssn' && (
             <>
               <div>
                 <TextInput
@@ -323,7 +260,7 @@ export const VerificationForm = ({
                 <button
                   type="button"
                   className={styles.pathToggleTrigger}
-                  onClick={() => handleSwitchPath('email_loan_id')}
+                  onClick={() => handleSwitchMode('email')}
                   tabIndex={0}
                   aria-label="Use my email instead"
                 >
@@ -356,7 +293,7 @@ export const VerificationForm = ({
                 <TextInput
                   label="ZIP code"
                   type="text"
-                  placeholder="e.g. 94103"
+                  placeholder="94103"
                   value={zip}
                   onChange={v => setZip(v.replace(/\D/g, '').slice(0, 5))}
                   isRequired
@@ -386,10 +323,9 @@ export const VerificationForm = ({
 
       {showDatePicker && (
         <DatePickerSheet
-          value={isThirdParty ? thirdPartyDob : dob}
+          value={dob}
           onSave={(formatted) => {
-            if (isThirdParty) setThirdPartyDob(formatted)
-            else setDob(formatted)
+            setDob(formatted)
             setShowDatePicker(false)
           }}
           onClose={() => setShowDatePicker(false)}

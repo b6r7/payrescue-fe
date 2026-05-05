@@ -3,13 +3,18 @@
  * This is the top-level state machine for the entire flow.
  *
  * Flow:
- *   MAGIC_LINK_LANDING → VERIFICATION_FORM → OTP_ENTRY → PAYMENT_INITIATED → PAYMENT_CONFIRMED
- *                                          ↘ (DOB path, no OTP) ↗
- *   Any step → TOKEN_EXPIRED | SESSION_EXPIRED | ERROR
+ *   IDENTITY_ENTRY → OTP_ENTRY → PAYMENT_INITIATED → PAYMENT_CONFIRMED
+ *                  ↘ (SSN/DOB/ZIP path, no OTP) ↗
+ *   Any step → SESSION_EXPIRED | ERROR
+ *
+ * Legacy steps (AFFIRM_SIGNIN, MAGIC_LINK_LANDING, TOKEN_EXPIRED, VERIFICATION_FORM)
+ * are still defined and reachable from non-default routes (e.g. ?mode=demo) but
+ * no longer part of the default user journey.
  */
 import { useState, useCallback } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { AffirmSignIn } from './flows/AffirmSignIn'
+import { IdentityEntry } from './flows/IdentityEntry'
 import { MagicLinkLanding } from './flows/MagicLinkLanding'
 import { TokenExpired } from './flows/TokenExpired'
 import { VerificationForm } from './flows/VerificationForm'
@@ -23,6 +28,7 @@ import { STEP } from './types'
 // Steps ordered so we know which direction to slide
 const STEP_ORDER = [
   STEP.AFFIRM_SIGNIN,
+  STEP.IDENTITY_ENTRY,
   STEP.MAGIC_LINK_LANDING,
   STEP.TOKEN_EXPIRED,
   STEP.VERIFICATION_FORM,
@@ -35,6 +41,7 @@ const STEP_ORDER = [
 
 type FlowState =
   | { step: typeof STEP.AFFIRM_SIGNIN }
+  | { step: typeof STEP.IDENTITY_ENTRY }
   | { step: typeof STEP.MAGIC_LINK_LANDING }
   | { step: typeof STEP.TOKEN_EXPIRED }
   | { step: typeof STEP.VERIFICATION_FORM; loanId: string; maskedEmail: string }
@@ -45,15 +52,15 @@ type FlowState =
   | { step: typeof STEP.ERROR; message?: string }
 
 type Props = {
-  /** Magic link token from email CTA URL */
-  magicLinkToken: string
-  /** Recipient email encoded in the magic link URL (?e=...) for dynamic masking */
+  /** Magic link token from email CTA URL — only used by legacy MAGIC_LINK_LANDING flow. */
+  magicLinkToken?: string
+  /** Recipient email encoded in the magic link URL (?e=...) for dynamic masking. */
   recipientEmail?: string
 }
 
-export const UPayOrchestrator = ({ magicLinkToken, recipientEmail = '' }: Props) => {
-  const [state, setState] = useState<FlowState>({ step: STEP.AFFIRM_SIGNIN })
-  const [prevStep, setPrevStep] = useState<string>(STEP.AFFIRM_SIGNIN)
+export const UPayOrchestrator = ({ magicLinkToken = '', recipientEmail = '' }: Props) => {
+  const [state, setState] = useState<FlowState>({ step: STEP.IDENTITY_ENTRY })
+  const [prevStep, setPrevStep] = useState<string>(STEP.IDENTITY_ENTRY)
 
   const goTo = useCallback((next: FlowState) => {
     setPrevStep(state.step)
@@ -76,7 +83,20 @@ export const UPayOrchestrator = ({ magicLinkToken, recipientEmail = '' }: Props)
     case STEP.AFFIRM_SIGNIN:
       content = (
         <AffirmSignIn
-          onGetStarted={() => goTo({ step: STEP.MAGIC_LINK_LANDING })}
+          onGetStarted={() => goTo({ step: STEP.IDENTITY_ENTRY })}
+        />
+      )
+      break
+
+    case STEP.IDENTITY_ENTRY:
+      content = (
+        <IdentityEntry
+          onOTPRequired={(maskedEmail, sessionToken) =>
+            goTo({ step: STEP.OTP_ENTRY, maskedEmail, sessionToken })
+          }
+          onDirectToPayment={(sessionToken) =>
+            goTo({ step: STEP.PAYMENT_INITIATED, sessionToken })
+          }
         />
       )
       break
@@ -97,7 +117,7 @@ export const UPayOrchestrator = ({ magicLinkToken, recipientEmail = '' }: Props)
     case STEP.TOKEN_EXPIRED:
       content = (
         <TokenExpired
-          onRequestNewLink={() => goTo({ step: STEP.MAGIC_LINK_LANDING })}
+          onRequestNewLink={() => goTo({ step: STEP.IDENTITY_ENTRY })}
         />
       )
       break
@@ -106,7 +126,6 @@ export const UPayOrchestrator = ({ magicLinkToken, recipientEmail = '' }: Props)
       content = (
         <VerificationForm
           prefilledLoanId={state.loanId}
-          maskedEmail={state.maskedEmail}
           onOTPRequired={(maskedEmail, sessionToken) =>
             goTo({ step: STEP.OTP_ENTRY, maskedEmail, sessionToken })
           }
@@ -126,7 +145,7 @@ export const UPayOrchestrator = ({ magicLinkToken, recipientEmail = '' }: Props)
             goTo({ step: STEP.PAYMENT_INITIATED, sessionToken })
           }
           onBack={() =>
-            goTo({ step: STEP.VERIFICATION_FORM, loanId: '', maskedEmail: state.maskedEmail })
+            goTo({ step: STEP.IDENTITY_ENTRY })
           }
         />
       )
@@ -156,14 +175,14 @@ export const UPayOrchestrator = ({ magicLinkToken, recipientEmail = '' }: Props)
       break
 
     case STEP.SESSION_EXPIRED:
-      content = <SessionExpired onRestart={() => goTo({ step: STEP.MAGIC_LINK_LANDING })} />
+      content = <SessionExpired onRestart={() => goTo({ step: STEP.IDENTITY_ENTRY })} />
       break
 
     case STEP.ERROR:
       content = (
         <GenericError
           message={state.message}
-          onRetry={() => goTo({ step: STEP.MAGIC_LINK_LANDING })}
+          onRetry={() => goTo({ step: STEP.IDENTITY_ENTRY })}
         />
       )
       break
