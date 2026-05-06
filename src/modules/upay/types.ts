@@ -52,6 +52,7 @@ export interface NewPaymentMethod {
 export const STEP = {
   AFFIRM_SIGNIN: 'AFFIRM_SIGNIN',
   ACCOUNT_FOUND: 'ACCOUNT_FOUND',
+  PORTAL_PLACEHOLDER: 'PORTAL_PLACEHOLDER',
   IDENTITY_ENTRY: 'IDENTITY_ENTRY',
   MAGIC_LINK_LANDING: 'MAGIC_LINK_LANDING',
   TOKEN_EXPIRED: 'TOKEN_EXPIRED',
@@ -79,6 +80,21 @@ export interface MagicLinkValidateResponse {
   /** Partial loan info pre-loaded from the magic link token */
   loan_id?: string
   masked_email?: string
+}
+
+// ─── Phone-recognition pre-flight on AffirmSignIn ────────────────────────────
+
+export interface CheckPhoneRequest {
+  loan_id?: string
+  phone: string
+}
+
+export interface CheckPhoneResponse {
+  match: boolean
+  /** Display-formatted masked phone, e.g. "(207) ***-2105". Null when the
+   *  backend couldn't resolve the user (no loan_id, lookup failure, etc.). */
+  masked_phone?: string
+  error?: { code: string; message: string }
 }
 
 export interface VerifyIdentityRequest {

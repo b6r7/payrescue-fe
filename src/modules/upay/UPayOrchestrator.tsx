@@ -15,6 +15,7 @@ import { useState, useCallback } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { AffirmSignIn } from './flows/AffirmSignIn'
 import { AccountFound } from './flows/AccountFound'
+import { PortalPlaceholder } from './flows/PortalPlaceholder'
 import { IdentityEntry } from './flows/IdentityEntry'
 import { MagicLinkLanding } from './flows/MagicLinkLanding'
 import { TokenExpired } from './flows/TokenExpired'
@@ -27,11 +28,13 @@ import { PaymentTransition } from './flows/PaymentTransition'
 import { SessionExpired } from './flows/SessionExpired'
 import { GenericError } from './flows/GenericError'
 import { STEP } from './types'
-import type { LoanItem } from './types'
+import { apiUrl } from '@/utils/apiBase'
+import type { CheckPhoneResponse, LoanItem } from './types'
 
 // Steps ordered so we know which direction to slide
 const STEP_ORDER = [
   STEP.AFFIRM_SIGNIN,
+  STEP.PORTAL_PLACEHOLDER,
   STEP.ACCOUNT_FOUND,
   STEP.IDENTITY_ENTRY,
   STEP.MAGIC_LINK_LANDING,
@@ -47,7 +50,8 @@ const STEP_ORDER = [
 
 type FlowState =
   | { step: typeof STEP.AFFIRM_SIGNIN }
-  | { step: typeof STEP.ACCOUNT_FOUND }
+  | { step: typeof STEP.ACCOUNT_FOUND; maskedPhone?: string }
+  | { step: typeof STEP.PORTAL_PLACEHOLDER }
   | { step: typeof STEP.IDENTITY_ENTRY }
   | { step: typeof STEP.MAGIC_LINK_LANDING }
   | { step: typeof STEP.TOKEN_EXPIRED }
@@ -121,9 +125,33 @@ export const UPayOrchestrator = ({ magicLinkToken = '', recipientEmail = '', pre
     case STEP.AFFIRM_SIGNIN:
       content = (
         <AffirmSignIn
-          onGetStarted={(phone) => {
+          onGetStarted={async (phone) => {
             setLoginPhone(phone)
-            goTo({ step: STEP.ACCOUNT_FOUND })
+            // Phone-recognition pre-flight. Identity is established by the
+            // email-CTA loan_id; the typed phone is just a recognition signal.
+            // No loan_id (someone landed at /) → skip the check, fall back to
+            // the original behavior (always ACCOUNT_FOUND with generic copy).
+            if (!prefilledLoanId) {
+              goTo({ step: STEP.ACCOUNT_FOUND })
+              return
+            }
+            try {
+              const res = await fetch(apiUrl('/api/upay/identity/check-phone'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ loan_id: prefilledLoanId, phone }),
+              })
+              const json: CheckPhoneResponse = await res.json()
+              if (json.match) {
+                goTo({ step: STEP.PORTAL_PLACEHOLDER })
+              } else {
+                goTo({ step: STEP.ACCOUNT_FOUND, maskedPhone: json.masked_phone })
+              }
+            } catch {
+              // Network/parse failure → keep the user moving rather than dead-ending.
+              // Fall back to the no-comparison branch.
+              goTo({ step: STEP.ACCOUNT_FOUND })
+            }
           }}
         />
       )
@@ -132,7 +160,20 @@ export const UPayOrchestrator = ({ magicLinkToken = '', recipientEmail = '', pre
     case STEP.ACCOUNT_FOUND:
       content = (
         <AccountFound
+          maskedPhone={state.maskedPhone}
           onMakePayment={() => goTo({ step: STEP.IDENTITY_ENTRY })}
+        />
+      )
+      break
+
+    case STEP.PORTAL_PLACEHOLDER:
+      content = (
+        <PortalPlaceholder
+          onContinueAsRescue={() => goTo({ step: STEP.IDENTITY_ENTRY })}
+          onRestart={() => {
+            setLoginPhone('')
+            goTo({ step: STEP.AFFIRM_SIGNIN })
+          }}
         />
       )
       break
