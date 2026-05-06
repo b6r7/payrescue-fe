@@ -17,6 +17,7 @@ type Props = {
   date: string
   time: string
   phone?: string
+  onRestart: () => void
 }
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
@@ -60,7 +61,7 @@ const formatPhone = (raw: string): string => {
   return raw
 }
 
-export const PaymentConfirmed = ({ amount, instrument, date, time, merchant, phone = '' }: Props) => {
+export const PaymentConfirmed = ({ amount, instrument, date, time, merchant, phone = '', onRestart }: Props) => {
   const [showPhoneModal, setShowPhoneModal] = useState(false)
   const [phoneAdded, setPhoneAdded] = useState(false)
 
@@ -188,7 +189,7 @@ export const PaymentConfirmed = ({ amount, instrument, date, time, merchant, pho
                 <button
                   type="button"
                   className={styles.primaryBtn}
-                  onClick={() => setShowPhoneModal(true)}
+                  onClick={onRestart}
                   aria-label="Log in"
                 >
                   Log in

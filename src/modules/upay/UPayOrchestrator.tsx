@@ -236,6 +236,10 @@ export const UPayOrchestrator = ({ magicLinkToken = '', recipientEmail = '' }: P
           date={state.date}
           time={state.time}
           phone={loginPhone}
+          onRestart={() => {
+            setLoginPhone('')
+            goTo({ step: STEP.AFFIRM_SIGNIN })
+          }}
         />
       )
       break
