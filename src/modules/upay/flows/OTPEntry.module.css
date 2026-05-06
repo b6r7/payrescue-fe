@@ -46,8 +46,7 @@
   cursor: pointer;
   padding: 0;
   font-weight: var(--font-weight-medium);          /* 500 */
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration: none;
 }
 
 .textAction:disabled {

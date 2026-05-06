@@ -137,10 +137,10 @@ export const PaymentInitiated = ({ sessionToken, selectedMerchant, onConfirmed, 
   const AMOUNT_LABELS: Record<string, string> = {
     upcoming_amount: 'Upcoming payment',
     overdue_amount: 'Overdue amount',
+    due_and_overdue_amount: 'Overdue & upcoming payment',
     remaining_amount: 'Remaining balance',
     other_amount: 'Other amount',
     due_amount: 'Amount due',
-    due_and_overdue_amount: 'Due + overdue',
   }
 
   return (
@@ -185,7 +185,11 @@ export const PaymentInitiated = ({ sessionToken, selectedMerchant, onConfirmed, 
                 />
                 <div className={styles.amountOptionContent}>
                   <EditableText id={`amount-label-${option.type}`} defaultValue={AMOUNT_LABELS[option.type] ?? option.type} className={styles.amountLabel} />
-                  <EditableText id={`amount-value-${option.type}`} defaultValue={option.formatted_amount} className={styles.amountValue} />
+                  <EditableText
+                    id={`amount-value-${option.type}`}
+                    defaultValue={option.formatted_amount}
+                    className={[styles.amountValue, option.type === 'overdue_amount' ? styles['amountValue--overdue'] : ''].filter(Boolean).join(' ')}
+                  />
                 </div>
               </label>
             ))}
@@ -208,7 +212,14 @@ export const PaymentInitiated = ({ sessionToken, selectedMerchant, onConfirmed, 
                   readOnly
                   className={styles.radioInput}
                 />
-                <span className={styles.methodLabel}>{selectedInstrument.label}</span>
+                <span className={styles.methodLabelGroup}>
+                  <span className={styles.methodLabel}>{selectedInstrument.label}</span>
+                  {(selectedInstrument.instrument_type === 'debit' || selectedInstrument.instrument_type === 'credit') && (
+                    <span className={styles.methodSubLabel}>
+                      {selectedInstrument.instrument_type === 'debit' ? 'Debit card' : 'Credit card'}
+                    </span>
+                  )}
+                </span>
                 <button
                   type="button"
                   className={styles.changeBtn}

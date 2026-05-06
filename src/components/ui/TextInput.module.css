@@ -19,6 +19,13 @@
   color: var(--components-color-foreground-secondary);
 }
 
+.optionalTag {
+  margin-left: 4px;
+  font-size: var(--semantic-size-body-small);
+  font-weight: var(--font-weight-regular);
+  color: var(--components-color-foreground-tertiary);
+}
+
 .required {
   color: var(--components-color-foreground-critical);
 }

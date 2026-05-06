@@ -1,12 +1,13 @@
+/* ── Header copy ──────────────────────────────────────── */
 .copy {
   display: flex;
   flex-direction: column;
-  gap: var(--components-spacing-xxs);
+  gap: 6px;
 }
 
 .heading {
-  font-family: var(--font-family-display);
-  font-size: var(--semantic-size-heading-md);     /* 24px */
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-heading-md);      /* 24px */
   font-weight: var(--font-weight-semibold);        /* 600 */
   line-height: var(--lh-headline-medium);          /* 32px */
   letter-spacing: var(--ls-headline-medium);       /* -0.25px */
@@ -23,80 +24,25 @@
   margin: 0;
 }
 
-.body {
+/* ── Plan list (stacked individual cards) ─────────────── */
+.planList {
   display: flex;
   flex-direction: column;
-  gap: var(--components-spacing-sm);
-}
-
-/* ── Total row ────────────────────────────────────────── */
-.totalRow {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-family: var(--font-family-body);
-  font-size: var(--semantic-size-body-medium);
-  line-height: var(--lh-body-medium);
-  color: var(--components-color-foreground-primary);
-}
-
-.totalLabel {
-  font-weight: var(--font-weight-regular);
-  color: var(--components-color-foreground-secondary);
-}
-
-.totalAmount {
-  font-weight: var(--font-weight-semibold);
-}
-
-/* ── Loan card wrapper ────────────────────────────────── */
-.loanCard {
-  border: 1px solid var(--components-color-border-default);
-  border-radius: var(--radius-onpage-default, 16px);
-  overflow: hidden;
-  background: var(--components-color-background-primary);
-}
-
-.divider {
-  height: 1px;
-  background: var(--components-color-border-default);
-  margin: 0 16px;
-}
-
-/* ── Loan row button ──────────────────────────────────── */
-.loanRow {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-  padding: 16px 16px 14px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  transition: background var(--time-quick, 120ms);
-}
-
-.loanRow:hover {
-  background: var(--components-color-background-secondary);
-}
-
-.loanRow:active {
-  background: var(--components-color-background-tertiary);
-}
-
-.loanRow:focus-visible {
-  outline: 2px solid var(--components-color-foreground-interactive-default);
-  outline-offset: -2px;
-}
-
-.loanRowInner {
-  display: flex;
-  align-items: center;
   gap: 12px;
 }
 
-/* ── Merchant logo ────────────────────────────────────── */
+/* ── Individual plan card ─────────────────────────────── */
+.planCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--components-color-border-default, #cccdd4);
+  border-radius: var(--radius-onpage-default, 16px);
+  background: var(--components-color-background-primary, #fff);
+}
+
+/* ── Merchant logo circle ─────────────────────────────── */
 .logoCircle {
   flex-shrink: 0;
   width: 36px;
@@ -124,103 +70,75 @@
   line-height: 1;
 }
 
-/* ── Text column ──────────────────────────────────────── */
-.loanText {
+/* ── Text block ───────────────────────────────────────── */
+.planText {
   flex: 1 1 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
-.loanName {
+/* body-Large-HighImp: 18px semibold */
+.planName {
   font-family: var(--font-family-body);
-  font-size: var(--semantic-size-body-large);       /* 18px */
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--lh-body-large);               /* 27px */
+  font-size: var(--semantic-size-body-large);      /* 18px */
+  font-weight: var(--font-weight-semibold);        /* 600 */
+  line-height: var(--lh-body-large);              /* 27px */
   color: var(--components-color-foreground-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.overdueLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+/* body-Small-HighImp overdue: 14px semibold red */
+.overdueStatus {
   font-family: var(--font-family-body);
-  font-size: var(--semantic-size-body-medium);
+  font-size: var(--semantic-size-body-small);      /* 14px */
   font-weight: var(--font-weight-semibold);
-  line-height: var(--lh-body-medium);
+  line-height: var(--lh-body-small);              /* 21px */
   color: var(--components-color-foreground-critical, #b4193f);
 }
 
-.progressLabel {
+/* body-Small-HighImp normal: 14px semibold primary */
+.normalStatus {
   font-family: var(--font-family-body);
-  font-size: var(--semantic-size-body-medium);
-  font-weight: var(--font-weight-regular);
-  line-height: var(--lh-body-medium);
-  color: var(--components-color-foreground-secondary);
-  white-space: nowrap;
-}
-
-/* ── Right amount ─────────────────────────────────────── */
-.loanRight {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.loanAmountGroup {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-}
-
-.loanAmount {
-  font-family: var(--font-family-body);
-  font-size: var(--semantic-size-body-large);
+  font-size: var(--semantic-size-body-small);      /* 14px */
   font-weight: var(--font-weight-semibold);
-  line-height: var(--lh-body-large);
+  line-height: var(--lh-body-small);
   color: var(--components-color-foreground-primary);
+}
+
+/* body-Small plan balance: 14px regular secondary */
+.planBalance {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);      /* 14px */
+  font-weight: var(--font-weight-regular);
+  line-height: var(--lh-body-small);
+  color: var(--components-color-foreground-primary);
+}
+
+/* ── Pay button ───────────────────────────────────────── */
+.payBtn {
+  flex-shrink: 0;
+  height: 36px;
+  padding: 0 18px;
+  background: var(--components-color-background-interactive-default, #000049);
+  color: #fff;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-medium);     /* 16px */
+  font-weight: var(--font-weight-medium);          /* 500 */
+  line-height: 1;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: opacity 0.15s;
   white-space: nowrap;
 }
 
-.loanAmountLabel {
-  font-family: var(--font-family-body);
-  font-size: var(--semantic-size-body-medium);
-  font-weight: var(--font-weight-regular);
-  line-height: var(--lh-body-medium);
-  color: var(--components-color-foreground-secondary);
-}
+.payBtn:hover { opacity: 0.88; }
 
-.chevron {
-  display: flex;
-  align-items: center;
-  color: var(--components-color-foreground-tertiary);
-}
-
-/* ── Progress bar ─────────────────────────────────────── */
-.progressTrack {
-  width: 100%;
-  height: 4px;
-  background: var(--components-color-border-default);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.progressFill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.progressFillNormal {
-  background: var(--components-color-foreground-interactive-default, #4a4af4);
-}
-
-.progressFillOverdue {
-  background: var(--components-color-foreground-critical, #db485f);
+.payBtn:focus-visible {
+  outline: 2px solid var(--affirm-brand-accent);
+  outline-offset: 2px;
 }

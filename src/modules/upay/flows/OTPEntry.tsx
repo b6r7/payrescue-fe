@@ -59,7 +59,7 @@ export const OTPEntry = ({ maskedEmail, sessionToken, onVerified, onBack }: Prop
   }
 
   return (
-    <FlowCard>
+    <FlowCard onBack={onBack}>
       <div className={styles.copy}>
         <h1 className={styles.heading}>Check your email</h1>
         <p className={styles.subheading}>
@@ -102,10 +102,6 @@ export const OTPEntry = ({ maskedEmail, sessionToken, onVerified, onBack }: Prop
           type="button"
         >
           {resendStatus === 'sending' ? 'Sending…' : resendStatus === 'sent' ? 'Code sent!' : "Didn't get a code? Resend"}
-        </button>
-        <span className={styles.separator} aria-hidden="true">·</span>
-        <button className={styles.textAction} onClick={onBack} type="button">
-          Go back
         </button>
       </div>
     </FlowCard>

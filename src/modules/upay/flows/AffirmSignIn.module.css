@@ -166,8 +166,7 @@
   font-weight: var(--font-weight-medium);
   line-height: var(--lh-comp-medium);
   cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration: none;
   transition: opacity 0.15s;
 }
 

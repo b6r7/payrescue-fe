@@ -1,6 +1,7 @@
 /**
  * LOAN_SELECT step — shown after SSN+DOB+ZIP verification.
  * Presents all active plans so the user can choose which one to pay.
+ * Design: figma.com/design/OJni8npwEGI3SJ2zy9PFDx node 10162-3133
  */
 import { motion } from 'motion/react'
 import { FlowCard } from '@/components/layout/FlowCard'
@@ -22,128 +23,73 @@ const LOGO_MAP: Record<string, string> = {
 
 const MerchantLogo = ({ name }: { name: string }) => {
   const src = LOGO_MAP[name]
-  if (src) {
-    return (
-      <div className={styles.logoCircle}>
-        <img src={src} alt={name} className={styles.logoImg} />
-      </div>
-    )
-  }
   return (
     <div className={styles.logoCircle}>
-      <span className={styles.logoInitial}>{name[0]}</span>
+      {src
+        ? <img src={src} alt={name} className={styles.logoImg} />
+        : <span className={styles.logoInitial}>{name[0]}</span>
+      }
     </div>
   )
 }
 
-/* ── Warning icon (for overdue) ───────────────────────── */
-const WarningIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" style={{ flexShrink: 0 }}>
-    <path d="M7 1.5L12.5 11H1.5L7 1.5Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
-    <path d="M7 5.5v3M7 10h.01" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-  </svg>
-)
+/* ── Single plan card ─────────────────────────────────── */
+const PlanCard = ({ loan, onSelect }: { loan: LoanItem; onSelect: () => void }) => (
+  <div className={styles.planCard}>
+    {/* Leading logo */}
+    <MerchantLogo name={loan.merchant_name} />
 
-/* ── Chevron ──────────────────────────────────────────── */
-const ChevronRight = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-    <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-)
+    {/* Text block */}
+    <div className={styles.planText}>
+      <span className={styles.planName}>{loan.merchant_name}</span>
 
-/* ── Single loan row ──────────────────────────────────── */
-const LoanRow = ({ loan, onSelect }: { loan: LoanItem; onSelect: () => void }) => (
-  <button
-    type="button"
-    className={styles.loanRow}
-    onClick={onSelect}
-    aria-label={`Select ${loan.merchant_name} plan, ${loan.remaining_amount} remaining`}
-  >
-    <div className={styles.loanRowInner}>
-      {/* Leading logo */}
-      <MerchantLogo name={loan.merchant_name} />
+      {loan.is_overdue && loan.overdue_amount ? (
+        <span className={styles.overdueStatus}>{`Overdue payment: ${loan.overdue_amount}`}</span>
+      ) : (
+        <span className={styles.normalStatus}>
+          {loan.next_payment ? `Next payment: ${loan.next_payment}` : ''}
+        </span>
+      )}
 
-      {/* Text */}
-      <div className={styles.loanText}>
-        <span className={styles.loanName}>{loan.merchant_name}</span>
-        {loan.is_overdue && loan.overdue_amount ? (
-          <span className={styles.overdueLabel}>
-            <WarningIcon />
-            {`Overdue payment: ${loan.overdue_amount}`}
-          </span>
-        ) : (
-          <span className={styles.progressLabel}>
-            {loan.next_payment ? `Next payment: ${loan.next_payment}` : loan.autopay_on === false ? 'AutoPay: Off' : loan.autopay_on === true ? 'AutoPay: On' : ''}
-          </span>
-        )}
-        {loan.plan_balance && (
-          <span className={styles.progressLabel}>{`Plan balance: ${loan.plan_balance}`}</span>
-        )}
-      </div>
-
-      {/* Right amount + chevron */}
-      <div className={styles.loanRight}>
-        <div className={styles.loanAmountGroup}>
-          <span className={styles.loanAmount}>{loan.remaining_amount}</span>
-          <span className={styles.loanAmountLabel}>remaining</span>
-        </div>
-        <span className={styles.chevron}><ChevronRight /></span>
-      </div>
+      {loan.plan_balance && (
+        <span className={styles.planBalance}>{`Plan balance: ${loan.plan_balance}`}</span>
+      )}
     </div>
 
-    {/* Progress bar */}
-    <div className={styles.progressTrack}>
-      <div
-        className={`${styles.progressFill} ${loan.is_overdue ? styles.progressFillOverdue : styles.progressFillNormal}`}
-        style={{ width: `${Math.round(loan.progress * 100)}%` }}
-      />
-    </div>
-  </button>
+    {/* Pay CTA */}
+    <button
+      type="button"
+      className={styles.payBtn}
+      onClick={onSelect}
+      aria-label={`Pay ${loan.merchant_name} plan`}
+    >
+      Pay
+    </button>
+  </div>
 )
 
 /* ── Component ────────────────────────────────────────── */
-export const LoanSelector = ({ loans, onSelect }: Props) => {
-  const total = loans.reduce((acc, l) => {
-    const num = parseFloat(l.remaining_amount.replace(/[^0-9.]/g, ''))
-    return acc + (isNaN(num) ? 0 : num)
-  }, 0)
+export const LoanSelector = ({ loans, onSelect }: Props) => (
+  <FlowCard>
+    <motion.div
+      className={styles.copy}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.32, ease: EASE }}
+    >
+      <h1 className={styles.heading}>Choose a plan</h1>
+      <p className={styles.subheading}>Select a plan to make a payment.</p>
+    </motion.div>
 
-  const formattedTotal = total.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
-
-  return (
-    <FlowCard>
-      <motion.div
-        className={styles.copy}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.32, ease: EASE }}
-      >
-        <h1 className={styles.heading}>Select loan to be paid</h1>
-        <p className={styles.subheading}>Below you'll find the current Plans that you still need to pay.</p>
-      </motion.div>
-
-      <motion.div
-        className={styles.body}
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1, duration: 0.34, ease: EASE }}
-      >
-        {/* Total row */}
-        <div className={styles.totalRow}>
-          <span className={styles.totalLabel}>Total:</span>
-          <span className={styles.totalAmount}>{formattedTotal}</span>
-        </div>
-
-        {/* Loan list card */}
-        <div className={styles.loanCard}>
-          {loans.map((loan, idx) => (
-            <div key={loan.ari}>
-              {idx > 0 && <div className={styles.divider} aria-hidden="true" />}
-              <LoanRow loan={loan} onSelect={() => onSelect(loan)} />
-            </div>
-          ))}
-        </div>
-      </motion.div>
-    </FlowCard>
-  )
-}
+    <motion.div
+      className={styles.planList}
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1, duration: 0.34, ease: EASE }}
+    >
+      {loans.map((loan) => (
+        <PlanCard key={loan.ari} loan={loan} onSelect={() => onSelect(loan)} />
+      ))}
+    </motion.div>
+  </FlowCard>
+)

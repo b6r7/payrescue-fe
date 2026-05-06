@@ -125,9 +125,10 @@
 }
 
 .pickerIconWrap--dark {
-  background: #000;
-  border-color: #000;
-  color: #fff;
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.10);
+  color: #000;
+  padding: 6px;
 }
 
 .pickerLabel {

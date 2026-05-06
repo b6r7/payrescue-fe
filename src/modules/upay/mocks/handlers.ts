@@ -58,13 +58,43 @@ export const handlers = [
    */
   http.post('/api/upay/verify-identity', async ({ request }) => {
     await delay(800)
-    const body = await request.json() as { loan_id: string; method: string; payer_type: string; email?: string; dob?: string }
+    const body = await request.json() as { loan_id?: string; method: string; payer_type: string; email?: string; dob?: string }
 
     // Third-party / DOB path → straight to payment for single loan (no OTP)
     if (body.method === 'loan_id_dob' || body.payer_type === 'third_party') {
       return HttpResponse.json<VerifyIdentityResponse>({
         step: STEP.PAYMENT_INITIATED,
         session_token: SESSION_TOKEN,
+      })
+    }
+
+    // Email path without Loan ID → show loan selector (can't scope to one loan)
+    if (body.method === 'loan_id_email' && !body.loan_id?.trim()) {
+      const loans: LoanItem[] = [
+        {
+          ari: 'ari:affirm:charge:us:1:apple_mock',
+          merchant_name: 'Apple',
+          remaining_amount: '$1,000.00',
+          overdue_amount: '$49.99',
+          plan_balance: '$109.10',
+          is_overdue: true,
+          progress: 0.87,
+        },
+        {
+          ari: 'ari:affirm:charge:us:1:target_mock',
+          merchant_name: 'Target',
+          remaining_amount: '$256.00',
+          next_payment: '$49.99',
+          plan_balance: '$109.10',
+          is_overdue: false,
+          autopay_on: false,
+          progress: 0.5,
+        },
+      ]
+      return HttpResponse.json<VerifyIdentityResponse>({
+        step: STEP.LOAN_SELECT,
+        session_token: SESSION_TOKEN,
+        loans,
       })
     }
 
@@ -147,14 +177,14 @@ export const handlers = [
         merchant_name: merchant,
         next_due_date: '2026-05-15',
         payment_amount_options: [
-          { type: 'upcoming_amount', amount: 12500, formatted_amount: '$125.00', label_flow_copy_key: 'upcoming_payment_label', subtext_flow_copy_key: 'upcoming_due_date_subtext' },
           { type: 'overdue_amount', amount: 25000, formatted_amount: '$250.00', label_flow_copy_key: 'overdue_input_label', subtext_flow_copy_key: 'overdue_input_label_subtext' },
+          { type: 'due_and_overdue_amount', amount: 37500, formatted_amount: '$375.00', label_flow_copy_key: 'due_and_overdue_label' },
           { type: 'remaining_amount', amount: 87500, formatted_amount: '$875.00', label_flow_copy_key: 'remaining_input_label' },
           { type: 'other_amount', amount: 0, formatted_amount: '', label_flow_copy_key: 'other_input_label' },
         ],
         instruments: [
           { ari: 'ari:affirm:instrument:apple_pay', label: 'Apple Pay', instrument_type: 'apple_pay' },
-          { ari: 'ari:affirm:instrument:visa_1231', label: 'Visa ••••1231', instrument_type: 'credit' },
+          { ari: 'ari:affirm:instrument:visa_1231', label: 'Visa •••• 1231', instrument_type: 'credit' },
         ],
         new_payment_method_options: [
           { flow_copy_key: 'add_card_option', action_key: 'add_card' },

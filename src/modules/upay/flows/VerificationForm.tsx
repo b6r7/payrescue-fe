@@ -106,7 +106,6 @@ export const VerificationForm = ({
     }
     if (path === 'email_loan_id') {
       if (!email.trim()) return 'Please enter your email address'
-      if (!loanId.trim()) return 'Please enter your Loan ID'
       return null
     }
     // ssn_dob_zip
@@ -197,18 +196,9 @@ export const VerificationForm = ({
             <div className={styles.loanIdHelpRow}>
               <span className={styles.loanIdHelpIcon} aria-hidden="true">✉️</span>
               <div>
-                <p className={styles.loanIdHelpTitle}>Check your Affirm confirmation email</p>
+                <p className={styles.loanIdHelpTitle}>Check your emails from Affirm</p>
                 <p className={styles.loanIdHelpBody}>
-                  Your Loan ID is in the subject line or body of any Affirm payment or plan email.
-                  It looks like <code className={styles.loanIdCode}>LN-20250101-00042</code>.
-                </p>
-              </div>
-            </div>
-            <div className={styles.loanIdHelpRow}>
-              <span className={styles.loanIdHelpIcon} aria-hidden="true">🔍</span>
-              <div>
-                <p className={styles.loanIdHelpBody}>
-                  Can't find it? Search for <strong>"Payment due"</strong> from <strong>no-reply@affirm.com</strong>.
+                  You can find your Loan ID at the bottom of Affirm emails.
                 </p>
               </div>
             </div>
@@ -299,7 +289,7 @@ export const VerificationForm = ({
                   placeholder="e.g. LN-20250428-00042"
                   value={loanId}
                   onChange={setLoanId}
-                  isRequired
+                  isOptional
                   autoComplete="off"
                   autoCapitalize="none"
                   spellCheck={false}
@@ -448,27 +438,9 @@ export const VerificationForm = ({
                       </svg>
                     </div>
                     <div className={styles.helpCardText}>
-                      <p className={styles.helpCardTitle}>Check your Affirm confirmation email</p>
+                      <p className={styles.helpCardTitle}>Check your emails from Affirm</p>
                       <p className={styles.helpCardBody}>
-                        Your Loan ID is in the subject line or body of any Affirm payment or plan email. It looks like{' '}
-                        <code className={styles.loanIdCode}>LN-20250101-00042</code>.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className={styles.helpDivider} aria-hidden="true" />
-
-                  {/* Card row 2 */}
-                  <div className={styles.helpCard}>
-                    <div className={styles.helpCardIconWrap} aria-hidden="true">
-                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <circle cx="9.167" cy="9.167" r="6.25" stroke="currentColor" strokeWidth="1.4"/>
-                        <path d="m16.25 16.25-2.917-2.917" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-                      </svg>
-                    </div>
-                    <div className={styles.helpCardText}>
-                      <p className={styles.helpCardBody}>
-                        Can't find it? Search for <strong>"Payment due"</strong> from <strong>no-reply@affirm.com</strong>.
+                        You can find your Loan ID at the bottom of Affirm emails.
                       </p>
                     </div>
                   </div>

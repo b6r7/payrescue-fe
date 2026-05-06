@@ -26,3 +26,19 @@
   color: var(--components-color-foreground-primary);
   margin-bottom: var(--components-spacing-xs);
 }
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--components-color-foreground-primary);
+  border-radius: 8px;
+  transition: opacity 0.15s;
+}
+
+.backBtn:hover { opacity: 0.6; }
+.backBtn:focus-visible { outline: 2px solid var(--affirm-brand-accent); outline-offset: 2px; }

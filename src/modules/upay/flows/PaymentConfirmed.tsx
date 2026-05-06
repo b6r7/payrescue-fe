@@ -34,7 +34,7 @@ const CardIcon = () => (
 )
 
 const AppleLogo = () => (
-  <img src="./apple-logo.png" alt="" aria-hidden="true" width="16" height="16" style={{ objectFit: 'contain', display: 'block' }} />
+  <img src="./apple-logo.png" alt="" aria-hidden="true" width="20" height="20" style={{ objectFit: 'contain', display: 'block' }} />
 )
 
 const DownArrowIcon = () => (
@@ -149,15 +149,25 @@ export const PaymentConfirmed = ({ amount, instrument, date, time, merchant }: P
                 ✓ Phone number updated. You're all set.
               </motion.p>
             ) : (
-              <motion.button
-                key="cta"
-                type="button"
-                className={styles.primaryBtn}
-                onClick={() => setShowPhoneModal(true)}
-                aria-label="Update my phone number"
-              >
-                Update my phone number
-              </motion.button>
+              <motion.div key="cta" className={styles.btnGroup}>
+                <button
+                  type="button"
+                  className={styles.primaryBtn}
+                  onClick={() => setShowPhoneModal(true)}
+                  aria-label="Update my phone number"
+                >
+                  Update my phone number
+                </button>
+                <a
+                  href="https://helpcenter.affirm.com/s/article/sign-in"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.tertiaryBtn}
+                  aria-label="Get help logging in"
+                >
+                  Get help logging in
+                </a>
+              </motion.div>
             )}
           </AnimatePresence>
         </motion.div>

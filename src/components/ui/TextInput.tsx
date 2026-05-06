@@ -9,6 +9,8 @@ type Props = Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'onBlur' |
   label?: string
   /** Element rendered to the right of the label (e.g. a help trigger) */
   labelRight?: ReactNode
+  /** Renders a muted "(optional)" suffix after the label text */
+  isOptional?: boolean
   ariaLabel?: string
   error?: string | boolean
   message?: string
@@ -24,6 +26,7 @@ type Props = Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'onBlur' |
 export const TextInput = ({
   label,
   labelRight,
+  isOptional = false,
   ariaLabel,
   error,
   message,
@@ -47,6 +50,7 @@ export const TextInput = ({
         <div className={labelRight ? styles.labelRow : undefined}>
           <label htmlFor={inputId} className={styles.label}>
             {label}
+            {isOptional && <span className={styles.optionalTag}>(optional)</span>}
           </label>
           {labelRight}
         </div>
