@@ -12,11 +12,11 @@ import type { VerifyIdentityResponse, LoanItem } from '../types'
 import { STEP } from '../types'
 import styles from './IdentityEntry.module.css'
 
-// Default for direct-load testing without an email CTA. Real production landing
-// is via `?loan_id=...` on the payment-reminder email link, which overrides this.
-// Affirm charge ARIs are 4-char alphanumeric pairs separated by a dash
-// (e.g. `8DP7-6U76`), not the legacy `LN-YYYYMMDD-NNNNN` format.
-const DEFAULT_LOAN_ID_PLACEHOLDER = '8DP7-6U76'
+// Greyed placeholder shown in the input when nothing is pre-filled. Shape
+// of an Affirm charge ARI (4-char alphanumeric pairs separated by a dash,
+// e.g. `8DP7-6U76`), not the legacy `LN-YYYYMMDD-NNNNN` format. Display
+// only — never submitted on form post.
+const LOAN_ID_PLACEHOLDER_HINT = '8DP7-6U76'
 
 type Props = {
   /** Pre-fills the Loan ID input from `?loan_id=...` URL param (email CTA path). */
@@ -27,7 +27,11 @@ type Props = {
 }
 
 export const IdentityEntry = ({ prefilledLoanId = '', onOTPRequired, onDirectToPayment, onLoanSelect }: Props) => {
-  const [loanId, setLoanId] = useState(prefilledLoanId || DEFAULT_LOAN_ID_PLACEHOLDER)
+  // Empty default when there's no email-CTA loan_id. The placeholder hint
+  // shows greyed in the input but is NOT in state — so a misclick on
+  // Continue with no input typed surfaces "Please enter your Loan ID"
+  // instead of submitting against a hardcoded ARI.
+  const [loanId, setLoanId] = useState(prefilledLoanId || '')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -83,6 +87,7 @@ export const IdentityEntry = ({ prefilledLoanId = '', onOTPRequired, onDirectToP
             className={styles.input}
             value={loanId}
             onChange={e => setLoanId(e.target.value)}
+            placeholder={LOAN_ID_PLACEHOLDER_HINT}
             autoComplete="off"
             autoCapitalize="none"
             spellCheck={false}

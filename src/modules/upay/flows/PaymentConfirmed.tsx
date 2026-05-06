@@ -102,7 +102,7 @@ export const PaymentConfirmed = ({ amount, instrument, date, time, merchant, pho
         >
           <CheckCircleIcon />
           <p className={styles.successBannerText}>
-            Your phone number is now updated. Now you'll log in and get text messages through {formatPhone(phone) || '(xxx) xxx-xxxx'}.
+            We'll text future updates and reminders to {formatPhone(phone) || 'your phone'}.
           </p>
         </motion.div>
 

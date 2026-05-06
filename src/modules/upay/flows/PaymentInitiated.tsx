@@ -75,7 +75,12 @@ export const PaymentInitiated = ({ sessionToken, selectedMerchant, onConfirmed, 
       : selectedAmount?.formatted_amount ? `Pay ${selectedAmount.formatted_amount}` : 'Pay'
 
   const handleConfirm = async () => {
-    if (!selectedInstrument || resolvedAmount <= 0) return
+    // Guard against double-click / re-entry while a confirm is in-flight.
+    // The Button's `isLoading` prop disables it visually, but the click
+    // handler can still fire twice in the same event tick before React
+    // re-renders. Backend has setIfAbsent(jti) protection too, but the
+    // FE guard avoids the confusing "REPLAY" error UI on the second click.
+    if (!selectedInstrument || resolvedAmount <= 0 || isLoading) return
 
     setIsLoading(true)
     setError(null)
@@ -105,7 +110,12 @@ export const PaymentInitiated = ({ sessionToken, selectedMerchant, onConfirmed, 
           amount: resolvedAmount,
           payment_date: new Date().toISOString().split('T')[0],
           session_token: sessionToken,
-          payment_authorization_evidence: document.documentElement.innerHTML,
+          // NOTE: an earlier version sent `document.documentElement.innerHTML`
+          // here as `payment_authorization_evidence`. The intent was to
+          // capture the rendered consent text the user saw at submit time.
+          // The actual effect was sending the entire DOM (masked phone,
+          // loan ID, merchant name) to the BE on every confirm — which then
+          // landed in any request-body access logger. Removed.
           ...cardFields,
         }),
       })
@@ -156,7 +166,30 @@ export const PaymentInitiated = ({ sessionToken, selectedMerchant, onConfirmed, 
     )
   }
 
-  if (!data) return null
+  // Initial load failed (e.g. /payment/initiate returned an error or the
+  // tunnel dropped). Render a recoverable error card instead of a blank
+  // screen so the user has a way to retry without refreshing.
+  if (!data) {
+    return (
+      <FlowCard>
+        <div className={styles.loanInfo}>
+          <h1 className={styles.pageTitle}>Couldn't load payment details</h1>
+          <p className={styles.pageSubtitle}>
+            {error ?? 'Something went wrong. Please try again.'}
+          </p>
+        </div>
+        <Button
+          color={Color.Accent}
+          emphasis={Emphasis.Primary}
+          size={Size.Large}
+          isFullWidth
+          onClick={() => window.location.reload()}
+        >
+          Try again
+        </Button>
+      </FlowCard>
+    )
+  }
 
   const AMOUNT_LABELS: Record<string, string> = {
     upcoming_amount: 'Upcoming payment',
