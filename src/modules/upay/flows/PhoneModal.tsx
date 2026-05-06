@@ -12,6 +12,7 @@ import { TextInput } from '../../../components/ui/TextInput'
 import { PinInput } from '../../../components/ui/PinInput'
 import { Button } from '../../../components/ui/Button'
 import { Color, Emphasis, Size } from '../../../components/ui/Button'
+import { apiUrl } from '../../../utils/apiBase'
 import styles from './PhoneModal.module.css'
 
 type Step = 'enter' | 'verify'
@@ -85,7 +86,7 @@ export const PhoneModal = ({ onSuccess, onClose }: Props) => {
     }
     setPhoneError(null)
     setIsLoading(true)
-    await fetch('/api/upay/phone/send-otp', {
+    await fetch(apiUrl('/api/upay/phone/send-otp'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone: digits }),
@@ -101,7 +102,7 @@ export const PhoneModal = ({ onSuccess, onClose }: Props) => {
     }
     setOtpError(null)
     setIsLoading(true)
-    await fetch('/api/upay/phone/verify-otp', {
+    await fetch(apiUrl('/api/upay/phone/verify-otp'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone: phone.replace(/\D/g, ''), otp }),
@@ -113,7 +114,7 @@ export const PhoneModal = ({ onSuccess, onClose }: Props) => {
   const handleResend = async () => {
     setResent(true)
     setOtp('')
-    await fetch('/api/upay/phone/send-otp', {
+    await fetch(apiUrl('/api/upay/phone/send-otp'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone: phone.replace(/\D/g, '') }),

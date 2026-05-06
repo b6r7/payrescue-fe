@@ -4,6 +4,7 @@
  */
 import { useEffect } from 'react'
 import { FlowCard } from '@/components/layout/FlowCard'
+import { apiUrl } from '@/utils/apiBase'
 import styles from './MagicLinkLanding.module.css'
 
 type Props = {
@@ -17,7 +18,7 @@ export const MagicLinkLanding = ({ token, recipientEmail = '', onValidated, onEx
   useEffect(() => {
     const validate = async () => {
       try {
-        const res = await fetch('/api/upay/magic-link/validate', {
+        const res = await fetch(apiUrl('/api/upay/magic-link/validate'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token, email: recipientEmail }),

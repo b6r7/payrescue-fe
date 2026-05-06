@@ -52,83 +52,55 @@ export const handlers = [
   }),
 
   /**
-   * Identity verification — Loan ID + Email or Loan ID + DOB.
-   * Happy path with email method triggers OTP step.
-   * Happy path with DOB method goes directly to payment.
+   * Identity verification — two methods:
+   *   loan_id_email  → email OTP step
+   *   ssn_dob_zip    → straight to payment (no OTP, knowledge-only)
    */
   http.post('/api/upay/verify-identity', async ({ request }) => {
     await delay(800)
-    const body = await request.json() as { loan_id?: string; method: string; payer_type: string; email?: string; dob?: string }
+    const body = await request.json() as { loan_id?: string; method: string; payer_type?: string; email?: string; dob?: string; ssn9?: string; zip?: string }
 
-    // Third-party / DOB path → straight to payment for single loan (no OTP)
-    if (body.method === 'loan_id_dob' || body.payer_type === 'third_party') {
+    const mockLoans: LoanItem[] = [
+      {
+        ari: 'ari:affirm:charge:us:1:apple_mock',
+        merchant_name: 'Apple',
+        remaining_amount: '$1,000.00',
+        overdue_amount: '$49.99',
+        plan_balance: '$109.10',
+        is_overdue: true,
+        progress: 0.87,
+      },
+      {
+        ari: 'ari:affirm:charge:us:1:target_mock',
+        merchant_name: 'Target',
+        remaining_amount: '$256.00',
+        next_payment: '$49.99',
+        plan_balance: '$109.10',
+        is_overdue: false,
+        autopay_on: false,
+        progress: 0.5,
+      },
+    ]
+
+    // SSN+DOB+ZIP path → show loan selector (user may have multiple plans)
+    if (body.method === 'ssn_dob_zip') {
       return HttpResponse.json<VerifyIdentityResponse>({
-        step: STEP.PAYMENT_INITIATED,
+        step: STEP.LOAN_SELECT,
         session_token: SESSION_TOKEN,
+        loans: mockLoans,
       })
     }
 
     // Email path without Loan ID → show loan selector (can't scope to one loan)
     if (body.method === 'loan_id_email' && !body.loan_id?.trim()) {
-      const loans: LoanItem[] = [
-        {
-          ari: 'ari:affirm:charge:us:1:apple_mock',
-          merchant_name: 'Apple',
-          remaining_amount: '$1,000.00',
-          overdue_amount: '$49.99',
-          plan_balance: '$109.10',
-          is_overdue: true,
-          progress: 0.87,
-        },
-        {
-          ari: 'ari:affirm:charge:us:1:target_mock',
-          merchant_name: 'Target',
-          remaining_amount: '$256.00',
-          next_payment: '$49.99',
-          plan_balance: '$109.10',
-          is_overdue: false,
-          autopay_on: false,
-          progress: 0.5,
-        },
-      ]
       return HttpResponse.json<VerifyIdentityResponse>({
         step: STEP.LOAN_SELECT,
         session_token: SESSION_TOKEN,
-        loans,
+        loans: mockLoans,
       })
     }
 
-    // SSN+DOB+ZIP path → show loan selector (user may have multiple plans)
-    if (body.method === 'ssn_dob_zip') {
-      const loans: LoanItem[] = [
-        {
-          ari: 'ari:affirm:charge:us:1:apple_mock',
-          merchant_name: 'Apple',
-          remaining_amount: '$1,000.00',
-          overdue_amount: '$49.99',
-          plan_balance: '$109.10',
-          is_overdue: true,
-          progress: 0.87,
-        },
-        {
-          ari: 'ari:affirm:charge:us:1:target_mock',
-          merchant_name: 'Target',
-          remaining_amount: '$256.00',
-          next_payment: '$49.99',
-          plan_balance: '$109.10',
-          is_overdue: false,
-          autopay_on: false,
-          progress: 0.5,
-        },
-      ]
-      return HttpResponse.json<VerifyIdentityResponse>({
-        step: STEP.LOAN_SELECT,
-        session_token: SESSION_TOKEN,
-        loans,
-      })
-    }
-
-    // Email verification (self only) → OTP required
+    // loan_id_email with loan ID → OTP required
     return HttpResponse.json<VerifyIdentityResponse>({
       step: STEP.OTP_ENTRY,
       session_token: SESSION_TOKEN,

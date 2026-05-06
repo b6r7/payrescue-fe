@@ -5,6 +5,7 @@
 import { useState } from 'react'
 import { FlowCard } from '@/components/layout/FlowCard'
 import { Button, PinInput, Banner, Color, Emphasis, Size } from '@/components/ui'
+import { apiUrl } from '@/utils/apiBase'
 import type { OTPVerifyResponse } from '../types'
 import { STEP } from '../types'
 import styles from './OTPEntry.module.css'
@@ -29,7 +30,7 @@ export const OTPEntry = ({ maskedEmail, sessionToken, onVerified, onBack }: Prop
     setError(null)
 
     try {
-      const res = await fetch('/api/upay/otp/verify', {
+      const res = await fetch(apiUrl('/api/upay/otp/verify'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ otp_code: code, session_token: sessionToken }),

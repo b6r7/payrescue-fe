@@ -51,6 +51,7 @@ export interface NewPaymentMethod {
 
 export const STEP = {
   AFFIRM_SIGNIN: 'AFFIRM_SIGNIN',
+  IDENTITY_ENTRY: 'IDENTITY_ENTRY',
   MAGIC_LINK_LANDING: 'MAGIC_LINK_LANDING',
   TOKEN_EXPIRED: 'TOKEN_EXPIRED',
   VERIFICATION_FORM: 'VERIFICATION_FORM',
@@ -66,7 +67,7 @@ export type Step = typeof STEP[keyof typeof STEP]
 
 // ─── Verification method options ─────────────────────────────────────────────
 
-export type VerificationMethod = 'loan_id_email' | 'loan_id_dob' | 'ssn_dob_zip'
+export type VerificationMethod = 'loan_id_email' | 'ssn_dob_zip'
 
 export type PayerType = 'self' | 'third_party'
 
@@ -79,6 +80,19 @@ export interface MagicLinkValidateResponse {
   masked_email?: string
 }
 
+export interface VerifyIdentityRequest {
+  loan_id?: string
+  method: VerificationMethod
+  payer_type: PayerType
+  /** Provided when method is loan_id_email */
+  email?: string
+  /** Provided when method is ssn_dob_zip; format: MM/DD/YYYY */
+  dob?: string
+  /** Provided when method is ssn_dob_zip; 9-digit SSN */
+  ssn9?: string
+  /** Provided when method is ssn_dob_zip; 5-digit US ZIP */
+  zip?: string
+}
 
 export interface LoanItem {
   ari: string

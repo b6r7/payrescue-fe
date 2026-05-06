@@ -4,22 +4,20 @@ import { DemoSender } from '@/modules/upay/flows/DemoSender'
 const getParams = () => new URLSearchParams(window.location.search)
 
 /**
- * Entry point — reads the magic link token from the URL query parameter.
+ * Entry point.
  *
  * Routes:
- *   ?mode=demo           → Demo sender page (send magic links via Resend)
- *   ?token=<jwt>         → UPay payment flow
- *   (no params)          → UPay flow with default mock token
+ *   ?mode=demo  → Demo sender page (send magic links via Resend, kept for Bart's tooling)
+ *   (default)   → UPay flow, starts at IDENTITY_ENTRY (login form with two identifier pairs)
  *
- * Real email CTA URL: https://pay.affirm.com/upay?token=<jwt>
- * Dev URL:            http://localhost:5173?token=mock123
- * Dev expired:        http://localhost:5173?token=expired
- * Demo sender:        http://localhost:5173?mode=demo
+ * Magic-link query params (?token=, ?e=) are still forwarded into the orchestrator
+ * for the legacy MAGIC_LINK_LANDING step, but the default landing is now the
+ * IDENTITY_ENTRY form — no magic link required.
  */
 const App = () => {
   const params = getParams()
   const mode = params.get('mode')
-  const token = params.get('token') ?? 'mock123'
+  const token = params.get('token') ?? ''
   const email = params.get('e') ?? ''
 
   return mode === 'demo'

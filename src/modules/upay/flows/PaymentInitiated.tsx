@@ -8,6 +8,7 @@ import { FlowCard } from '@/components/layout/FlowCard'
 import { Button, Banner, Color, Emphasis, Size } from '@/components/ui'
 import { AddCardModal } from './AddCardModal'
 import { EditableText } from '@/components/ui/EditableText'
+import { apiUrl } from '@/utils/apiBase'
 import type { PaymentInitiatedResponse, PaymentInstrument, PaymentAmount } from '../types'
 import { STEP } from '../types'
 import styles from './PaymentInitiated.module.css'
@@ -18,7 +19,6 @@ const ChevronIcon = () => (
     <path d="M7 5l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 )
-
 
 type Props = {
   sessionToken: string
@@ -40,7 +40,7 @@ export const PaymentInitiated = ({ sessionToken, selectedMerchant, onConfirmed, 
   useEffect(() => {
     const init = async () => {
       try {
-        const res = await fetch('/api/upay/payment/initiate', {
+        const res = await fetch(apiUrl('/api/upay/payment/initiate'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ session_token: sessionToken, merchant: selectedMerchant }),
@@ -77,7 +77,7 @@ export const PaymentInitiated = ({ sessionToken, selectedMerchant, onConfirmed, 
     setError(null)
 
     try {
-      const res = await fetch('/api/upay/payment/confirm', {
+      const res = await fetch(apiUrl('/api/upay/payment/confirm'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
