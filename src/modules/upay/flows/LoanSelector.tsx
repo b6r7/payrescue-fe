@@ -15,11 +15,17 @@ type Props = {
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
 /* ── Merchant logo ────────────────────────────────────── */
+const LOGO_MAP: Record<string, string> = {
+  Apple: './apple-logo.png',
+  Target: './target-logo.png',
+}
+
 const MerchantLogo = ({ name }: { name: string }) => {
-  if (name === 'Apple') {
+  const src = LOGO_MAP[name]
+  if (src) {
     return (
       <div className={styles.logoCircle}>
-        <img src="./apple-logo.png" alt="Apple" className={styles.logoImg} />
+        <img src={src} alt={name} className={styles.logoImg} />
       </div>
     )
   }
@@ -63,12 +69,15 @@ const LoanRow = ({ loan, onSelect }: { loan: LoanItem; onSelect: () => void }) =
         {loan.is_overdue && loan.overdue_amount ? (
           <span className={styles.overdueLabel}>
             <WarningIcon />
-            {loan.overdue_amount} Overdue
+            {`Overdue payment: ${loan.overdue_amount}`}
           </span>
         ) : (
           <span className={styles.progressLabel}>
-            {loan.autopay_on === false ? 'AutoPay: Off' : loan.autopay_on === true ? 'AutoPay: On' : ''}
+            {loan.next_payment ? `Next payment: ${loan.next_payment}` : loan.autopay_on === false ? 'AutoPay: Off' : loan.autopay_on === true ? 'AutoPay: On' : ''}
           </span>
+        )}
+        {loan.plan_balance && (
+          <span className={styles.progressLabel}>{`Plan balance: ${loan.plan_balance}`}</span>
         )}
       </div>
 

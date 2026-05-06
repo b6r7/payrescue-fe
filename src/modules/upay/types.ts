@@ -85,6 +85,8 @@ export interface LoanItem {
   merchant_name: string
   remaining_amount: string
   overdue_amount?: string
+  plan_balance?: string
+  next_payment?: string
   is_overdue: boolean
   installment_label?: string
   autopay_on?: boolean
