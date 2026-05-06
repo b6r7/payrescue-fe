@@ -87,8 +87,7 @@
   background-color: transparent;
   border-color: transparent;
   color: var(--components-color-foreground-interactive-default);
-  text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration: none;
 }
 
 /* ── Critical / Primary ──────────────────────────────────── */

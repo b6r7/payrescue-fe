@@ -14,6 +14,7 @@
 import { useState, useCallback } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { AffirmSignIn } from './flows/AffirmSignIn'
+import { AccountFound } from './flows/AccountFound'
 import { IdentityEntry } from './flows/IdentityEntry'
 import { MagicLinkLanding } from './flows/MagicLinkLanding'
 import { TokenExpired } from './flows/TokenExpired'
@@ -31,6 +32,7 @@ import type { LoanItem } from './types'
 // Steps ordered so we know which direction to slide
 const STEP_ORDER = [
   STEP.AFFIRM_SIGNIN,
+  STEP.ACCOUNT_FOUND,
   STEP.IDENTITY_ENTRY,
   STEP.MAGIC_LINK_LANDING,
   STEP.TOKEN_EXPIRED,
@@ -45,6 +47,7 @@ const STEP_ORDER = [
 
 type FlowState =
   | { step: typeof STEP.AFFIRM_SIGNIN }
+  | { step: typeof STEP.ACCOUNT_FOUND }
   | { step: typeof STEP.IDENTITY_ENTRY }
   | { step: typeof STEP.MAGIC_LINK_LANDING }
   | { step: typeof STEP.TOKEN_EXPIRED }
@@ -66,10 +69,11 @@ type Props = {
 type ConfirmedData = { amount: string; instrument: string; instrumentType: string; merchant: string; date: string; time: string }
 
 export const UPayOrchestrator = ({ magicLinkToken = '', recipientEmail = '' }: Props) => {
-  const [state, setState] = useState<FlowState>({ step: STEP.IDENTITY_ENTRY })
-  const [prevStep, setPrevStep] = useState<string>(STEP.IDENTITY_ENTRY)
+  const [state, setState] = useState<FlowState>({ step: STEP.AFFIRM_SIGNIN })
+  const [prevStep, setPrevStep] = useState<string>(STEP.AFFIRM_SIGNIN)
   const [pendingConfirmed, setPendingConfirmed] = useState<ConfirmedData | null>(null)
   const [showTransition, setShowTransition] = useState(false)
+  const [loginPhone, setLoginPhone] = useState('')
 
   const goTo = useCallback((next: FlowState) => {
     setPrevStep(state.step)
@@ -114,7 +118,18 @@ export const UPayOrchestrator = ({ magicLinkToken = '', recipientEmail = '' }: P
     case STEP.AFFIRM_SIGNIN:
       content = (
         <AffirmSignIn
-          onGetStarted={() => goTo({ step: STEP.IDENTITY_ENTRY })}
+          onGetStarted={(phone) => {
+            setLoginPhone(phone)
+            goTo({ step: STEP.ACCOUNT_FOUND })
+          }}
+        />
+      )
+      break
+
+    case STEP.ACCOUNT_FOUND:
+      content = (
+        <AccountFound
+          onMakePayment={() => goTo({ step: STEP.IDENTITY_ENTRY })}
         />
       )
       break
@@ -220,6 +235,7 @@ export const UPayOrchestrator = ({ magicLinkToken = '', recipientEmail = '' }: P
           merchant={state.merchant}
           date={state.date}
           time={state.time}
+          phone={loginPhone}
         />
       )
       break

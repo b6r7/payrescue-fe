@@ -1,3 +1,23 @@
+/* ── Success banner (Figma 10197:5130) ───────────────── */
+.successBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #c3f7d5;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.successBannerText {
+  flex: 1;
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-medium);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.5;
+  color: var(--components-color-foreground-primary);
+}
+
 /* ── Hero ─────────────────────────────────────────────── */
 .hero {
   display: flex;
@@ -141,9 +161,10 @@
 .arrowWrap {
   display: flex;
   align-items: center;
-  padding-left: 6px;
+  padding-left: 10px;
   color: var(--components-color-foreground-secondary);
-  height: 24px;
+  height: 20px;
+  overflow: hidden;
 }
 
 /* ── Bottom CTA ───────────────────────────────────────── */
@@ -200,6 +221,7 @@
   line-height: 24px;
   cursor: pointer;
   border-radius: 100px;
+  text-decoration: none;
   transition: opacity 0.15s;
 }
 

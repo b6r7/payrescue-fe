@@ -16,16 +16,25 @@ type Props = {
 
 type View = 'picker' | 'bank' | 'bankForm' | 'bankSuccess' | 'card'
 
-/* ─── Figma bank logo assets (7-day CDN) ─────────────── */
+/* ─── Bank logo assets — imported so Vite hashes paths for Quickhost ── */
+import wellsFargoSrc  from '@/assets/banks/wells-fargo.png'
+import citibankSrc    from '@/assets/banks/citibank.png'
+import chaseSrc       from '@/assets/banks/chase.png'
+import chimeSrc       from '@/assets/banks/chime.png'
+import tdBankSrc      from '@/assets/banks/td-bank.png'
+import usBankSrc      from '@/assets/banks/us-bank.png'
+import pncSrc         from '@/assets/banks/pnc.png'
+import capitalOneSrc  from '@/assets/banks/capital-one.png'
+
 const LOGO = {
-  wellsFargo:  '/banks/wells-fargo.png',
-  citibank:    '/banks/citibank.png',
-  chase:       '/banks/chase.png',
-  chime:       '/banks/chime.png',
-  tdBank:      '/banks/td-bank.png',
-  usBank:      '/banks/us-bank.png',
-  pnc:         '/banks/pnc.png',
-  capitalOne:  '/banks/capital-one.png',
+  wellsFargo:  wellsFargoSrc,
+  citibank:    citibankSrc,
+  chase:       chaseSrc,
+  chime:       chimeSrc,
+  tdBank:      tdBankSrc,
+  usBank:      usBankSrc,
+  pnc:         pncSrc,
+  capitalOne:  capitalOneSrc,
 } as const
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]

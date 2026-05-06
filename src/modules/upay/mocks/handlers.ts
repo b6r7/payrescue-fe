@@ -100,11 +100,10 @@ export const handlers = [
       })
     }
 
-    // loan_id_email with loan ID → OTP required
+    // loan_id_email with loan ID → skip OTP, go straight to payment
     return HttpResponse.json<VerifyIdentityResponse>({
-      step: STEP.OTP_ENTRY,
+      step: STEP.PAYMENT_INITIATED,
       session_token: SESSION_TOKEN,
-      masked_email: maskEmail(body.email ?? ''),
     })
   }),
 

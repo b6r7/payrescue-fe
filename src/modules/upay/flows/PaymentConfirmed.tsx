@@ -16,6 +16,7 @@ type Props = {
   merchant: string
   date: string
   time: string
+  phone?: string
 }
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
@@ -43,8 +44,23 @@ const DownArrowIcon = () => (
   </svg>
 )
 
+const CheckCircleIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+    <circle cx="9" cy="9" r="8.25" stroke="#1a7a47" strokeWidth="1.5"/>
+    <path d="M5.5 9l2.5 2.5 4.5-5" stroke="#1a7a47" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)
+
 /* ─── Component ──────────────────────────────────────── */
-export const PaymentConfirmed = ({ amount, instrument, date, time, merchant }: Props) => {
+const formatPhone = (raw: string): string => {
+  const digits = raw.replace(/\D/g, '')
+  if (digits.length >= 10) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`
+  }
+  return raw
+}
+
+export const PaymentConfirmed = ({ amount, instrument, date, time, merchant, phone = '' }: Props) => {
   const [showPhoneModal, setShowPhoneModal] = useState(false)
   const [phoneAdded, setPhoneAdded] = useState(false)
 
@@ -74,6 +90,19 @@ export const PaymentConfirmed = ({ amount, instrument, date, time, merchant }: P
         >
           <h1 className={styles.title}>Thanks for your payment</h1>
           <p className={styles.subtitle}>You're one step closer to paying off your purchase.</p>
+        </motion.div>
+
+        {/* ── Success banner ────────────────────────────── */}
+        <motion.div
+          className={styles.successBanner}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.36, ease: EASE }}
+        >
+          <CheckCircleIcon />
+          <p className={styles.successBannerText}>
+            Your phone number is now updated. Now you'll log in and get text messages through {formatPhone(phone) || '(xxx) xxx-xxxx'}.
+          </p>
         </motion.div>
 
         {/* ── Summary section ───────────────────────────── */}
@@ -111,9 +140,15 @@ export const PaymentConfirmed = ({ amount, instrument, date, time, merchant }: P
                 </div>
               </div>
 
-              {/* Down arrow connector */}
+              {/* Down arrow connector — infinite scroll animation */}
               <div className={styles.arrowWrap} aria-hidden="true">
-                <DownArrowIcon />
+                <motion.div
+                  animate={{ y: [-20, 20] }}
+                  transition={{ duration: 0.9, repeat: Infinity, ease: 'easeInOut', repeatType: 'loop' }}
+                  style={{ display: 'flex', alignItems: 'center' }}
+                >
+                  <DownArrowIcon />
+                </motion.div>
               </div>
 
               {/* Merchant / plan row */}
@@ -154,19 +189,10 @@ export const PaymentConfirmed = ({ amount, instrument, date, time, merchant }: P
                   type="button"
                   className={styles.primaryBtn}
                   onClick={() => setShowPhoneModal(true)}
-                  aria-label="Update my phone number"
+                  aria-label="Log in"
                 >
-                  Update my phone number
+                  Log in
                 </button>
-                <a
-                  href="https://helpcenter.affirm.com/s/article/sign-in"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.tertiaryBtn}
-                  aria-label="Get help logging in"
-                >
-                  Get help logging in
-                </a>
               </motion.div>
             )}
           </AnimatePresence>

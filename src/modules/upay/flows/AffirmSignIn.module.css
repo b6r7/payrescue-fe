@@ -175,7 +175,7 @@
 }
 
 /* ════════════════════════════════════════════════════════
-   INVALID PHONE MODAL OVERLAY
+   OVERLAY (shared between error modal + OTP dialog)
    ════════════════════════════════════════════════════════ */
 
 .overlay {
@@ -320,11 +320,139 @@
 
 .disclaimerLink {
   color: #1b0d7c;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  font-weight: var(--font-weight-medium);          /* 500 — matches image */
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
 }
 
 .disclaimerLink:hover { color: #4a4af4; }
 
+/* ════════════════════════════════════════════════════════
+   OTP DIALOG (Figma node 10187:38145)
+   ════════════════════════════════════════════════════════ */
 
+.otpDialog {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 343px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.otpCloseRow {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.otpHeading {
+  font-family: var(--font-family-body);
+  font-size: 24px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.17;
+  color: #0c0c14;
+  text-align: center;
+  margin: 0;
+  width: 100%;
+}
+
+.otpBody {
+  font-family: var(--font-family-body);
+  font-size: 16px;
+  font-weight: var(--font-weight-regular);
+  line-height: 1.5;
+  color: #101820;
+  text-align: center;
+  margin: 0;
+  width: 100%;
+}
+
+.otpPhone {
+  font-weight: var(--font-weight-medium);
+  color: #101820;
+}
+
+/* ── OTP digit display ── */
+.otpFieldWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  cursor: text;
+  width: 100%;
+  justify-content: center;
+}
+
+.otpHiddenInput {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.otpCursor {
+  display: inline-block;
+  width: 2px;
+  height: 44px;
+  background: #000061;
+  border-radius: 1px;
+  animation: otpBlink 1s step-end infinite;
+  flex-shrink: 0;
+}
+
+@keyframes otpBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.otpDigits {
+  display: flex;
+  align-items: baseline;
+}
+
+.otpDigitFilled {
+  font-family: var(--font-family-body);
+  font-size: 56px;
+  line-height: 64px;
+  color: #0c0c14;
+  width: 36px;
+  text-align: center;
+}
+
+.otpDigitEmpty {
+  font-family: var(--font-family-body);
+  font-size: 56px;
+  line-height: 64px;
+  color: #b1b1be;
+  width: 36px;
+  text-align: center;
+}
+
+/* ── Footer ── */
+.otpFooter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.otpResend {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family-body);
+  font-size: 18px;
+  font-weight: var(--font-weight-medium);
+  line-height: 26px;
+  color: #000061;
+  padding: 3px 0;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.otpResend:hover { opacity: 0.7; }
