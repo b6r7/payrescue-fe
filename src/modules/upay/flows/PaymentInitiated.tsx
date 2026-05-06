@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import { AnimatePresence } from 'motion/react'
 import { FlowCard } from '@/components/layout/FlowCard'
 import { Button, Banner, Color, Emphasis, Size } from '@/components/ui'
-import { AddCardModal } from './AddCardModal'
+import { AddCardModal, type NewCardData } from './AddCardModal'
 import { EditableText } from '@/components/ui/EditableText'
 import { apiUrl } from '@/utils/apiBase'
 import type { PaymentInitiatedResponse, PaymentInstrument, PaymentAmount } from '../types'
@@ -33,6 +33,10 @@ export const PaymentInitiated = ({ sessionToken, selectedMerchant, onConfirmed, 
   const [selectedAmount, setSelectedAmount] = useState<PaymentAmount | null>(null)
   const [customAmount, _setCustomAmount] = useState('')
   const [selectedInstrument, setSelectedInstrument] = useState<PaymentInstrument | null>(null)
+  // Raw card fields when the user adds a new card. Tagged with the synthetic
+  // `ari` we attached to the PaymentInstrument so we only forward them when
+  // the user actually selects that newly-added card on Pay submit.
+  const [pendingCardData, setPendingCardData] = useState<(NewCardData & { ari: string }) | null>(null)
   const [showAddCard, setShowAddCard] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -77,6 +81,22 @@ export const PaymentInitiated = ({ sessionToken, selectedMerchant, onConfirmed, 
     setError(null)
 
     try {
+      // If the selected instrument is a freshly-added card, forward the raw
+      // card fields so the backend can tokenize via instruments.legacy and
+      // produce a real instrument_ari (the synthetic one we attached locally
+      // wouldn't be accepted by makeLoanPayment).
+      const cardFields =
+        pendingCardData && pendingCardData.ari === selectedInstrument.ari
+          ? {
+              card_number: pendingCardData.card_number,
+              exp_month: pendingCardData.exp_month,
+              exp_year: pendingCardData.exp_year,
+              cvc: pendingCardData.cvc,
+              postal_code: pendingCardData.postal_code,
+              card_holder_name: pendingCardData.card_holder_name,
+            }
+          : {}
+
       const res = await fetch(apiUrl('/api/upay/payment/confirm'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -86,6 +106,7 @@ export const PaymentInitiated = ({ sessionToken, selectedMerchant, onConfirmed, 
           payment_date: new Date().toISOString().split('T')[0],
           session_token: sessionToken,
           payment_authorization_evidence: document.documentElement.innerHTML,
+          ...cardFields,
         }),
       })
 
@@ -115,9 +136,12 @@ export const PaymentInitiated = ({ sessionToken, selectedMerchant, onConfirmed, 
     }
   }
 
-  const handleCardSaved = (instrument: PaymentInstrument) => {
+  const handleCardSaved = (instrument: PaymentInstrument, newCardData?: NewCardData) => {
     setLocalInstruments((prev) => [...prev, instrument])
     setSelectedInstrument(instrument)
+    // Stash the raw card fields so handleConfirm can forward them; backend
+    // tokenizes and overrides the synthetic instrument_ari we attached above.
+    if (newCardData) setPendingCardData({ ...newCardData, ari: instrument.ari })
     setShowAddCard(false)
   }
 

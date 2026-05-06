@@ -9,8 +9,27 @@ import { motion, AnimatePresence } from 'motion/react'
 import type { PaymentInstrument } from '../types'
 import styles from './AddCardModal.module.css'
 
+/**
+ * Raw card data captured when the user adds a new card. Forwarded by the
+ * caller (PaymentInitiated) into POST /api/upay/payment/confirm so the
+ * backend can tokenize via instruments.legacy.createInstrument and use the
+ * resulting real instrument_ari for makeLoanPayment.
+ *
+ * The synthetic `ari:affirm:instrument:us:1:card_<ts>` we attach to the
+ * PaymentInstrument is local UI state only — backend ignores it when
+ * card_number is present in the body.
+ */
+export type NewCardData = {
+  card_number: string
+  exp_month: number
+  exp_year: number
+  cvc: string
+  postal_code: string
+  card_holder_name: string
+}
+
 type Props = {
-  onSave: (instrument: PaymentInstrument) => void
+  onSave: (instrument: PaymentInstrument, newCardData?: NewCardData) => void
   onClose: () => void
 }
 
@@ -288,8 +307,22 @@ export const AddCardModal = ({ onSave, onClose }: Props) => {
       label,
       instrument_type: 'debit',
     }
+    // Parse MM/YY into the integer fields the backend tokenizer expects.
+    // The Affirm Stripe sandbox accepts any future-dated card.
+    const [mm, yy] = expiry.split('/')
+    const newCardData: NewCardData = {
+      card_number: rawDigits,
+      exp_month: parseInt(mm, 10),
+      exp_year: 2000 + parseInt(yy, 10),
+      cvc: cvv,
+      postal_code: zip.replace(/\D/g, '').slice(0, 5),
+      // Modal doesn't collect a holder name; Stripe accepts any non-empty
+      // string. Use a generic placeholder so tokenization succeeds without
+      // adding a form field.
+      card_holder_name: 'Affirm Customer',
+    }
     setIsSaving(false)
-    onSave(newInstrument)
+    onSave(newInstrument, newCardData)
   }
 
   const handleCardNumberChange = (raw: string) => {
