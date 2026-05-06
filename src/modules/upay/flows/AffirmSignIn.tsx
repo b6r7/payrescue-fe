@@ -34,18 +34,28 @@ const PersonIcon = () => (
 )
 
 
+// Formats a digits string as `(AAA) PPP-NNNN` progressively as the user types.
+// Stores digits only in state so cursor / backspace behavior stays sane;
+// formatting is purely a display concern.
+const formatUsPhone = (digits: string): string => {
+  const d = digits.slice(0, 10)
+  if (d.length === 0) return ''
+  if (d.length <= 3) return `(${d}`
+  if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`
+  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`
+}
+
 export const AffirmSignIn = ({ onGetStarted }: Props) => {
+  // `phone` is digits-only; the input is rendered with formatUsPhone() applied.
   const [phone, setPhone] = useState('')
   const [showOtp, setShowOtp] = useState(false)
   const [otp, setOtp] = useState('')
   const otpInputRef = useRef<HTMLInputElement>(null)
 
-  const maskedPhone = phone.replace(/\D/g, '').length >= 10
-    ? `(${phone.replace(/\D/g,'').slice(0,3)}) ${phone.replace(/\D/g,'').slice(3,6)}-${phone.replace(/\D/g,'').slice(6,10)}`
-    : phone
+  const maskedPhone = formatUsPhone(phone)
 
   const handleContinue = () => {
-    if (phone.replace(/\D/g, '').length > 0) {
+    if (phone.length > 0) {
       setOtp('')
       setShowOtp(true)
     }
@@ -162,7 +172,8 @@ export const AffirmSignIn = ({ onGetStarted }: Props) => {
 
           <h1 className={styles.heading}>Log in</h1>
 
-          {/* Live phone input */}
+          {/* Live phone input — display is formatted (`(207) 679-2105`),
+              underlying state is digits-only for clean BE round-trip. */}
           <div className={styles.phoneField}>
             <label htmlFor="signin-phone" className={styles.phoneLabel}>Mobile number</label>
             <input
@@ -170,8 +181,8 @@ export const AffirmSignIn = ({ onGetStarted }: Props) => {
               type="tel"
               className={styles.phoneInput}
               placeholder="(800) 000-0000"
-              value={phone}
-              onChange={e => setPhone(e.target.value)}
+              value={formatUsPhone(phone)}
+              onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
               onKeyDown={handleKeyDown}
               inputMode="numeric"
               autoComplete="tel"
