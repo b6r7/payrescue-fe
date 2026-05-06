@@ -1,6 +1,10 @@
 /* Matches affirm.com/user/signin — always in the failed-login error state */
 
 .root {
+  /* Fill the viewport (parent #root has align-items: center which would
+     otherwise shrink this to content width, exposing the body bg as a
+     visible seam on left/right). */
+  width: 100%;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
