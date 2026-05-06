@@ -64,11 +64,14 @@ type Props = {
   magicLinkToken?: string
   /** Recipient email encoded in the magic link URL (?e=...) for dynamic masking. */
   recipientEmail?: string
+  /** Loan ID from the payment-reminder email's CTA URL (?loan_id=...). Pre-populates
+   * the Confirm Loan ID screen so users coming from email skip typing it. */
+  prefilledLoanId?: string
 }
 
 type ConfirmedData = { amount: string; instrument: string; instrumentType: string; merchant: string; date: string; time: string }
 
-export const UPayOrchestrator = ({ magicLinkToken = '', recipientEmail = '' }: Props) => {
+export const UPayOrchestrator = ({ magicLinkToken = '', recipientEmail = '', prefilledLoanId = '' }: Props) => {
   const [state, setState] = useState<FlowState>({ step: STEP.AFFIRM_SIGNIN })
   const [prevStep, setPrevStep] = useState<string>(STEP.AFFIRM_SIGNIN)
   const [pendingConfirmed, setPendingConfirmed] = useState<ConfirmedData | null>(null)
@@ -137,6 +140,7 @@ export const UPayOrchestrator = ({ magicLinkToken = '', recipientEmail = '' }: P
     case STEP.IDENTITY_ENTRY:
       content = (
         <IdentityEntry
+          prefilledLoanId={prefilledLoanId}
           onOTPRequired={(maskedEmail, sessionToken) =>
             goTo({ step: STEP.OTP_ENTRY, maskedEmail, sessionToken })
           }

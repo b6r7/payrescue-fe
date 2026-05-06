@@ -19,10 +19,15 @@ const App = () => {
   const mode = params.get('mode')
   const token = params.get('token') ?? ''
   const email = params.get('e') ?? ''
+  // Email-CTA pre-population. The payment-reminder email's "Make a payment"
+  // link carries `?loan_id=...` so the user lands on the Confirm Loan ID
+  // screen with their loan already filled in. No PII in the URL — loan_id
+  // doesn't tie to user identity directly.
+  const loanId = params.get('loan_id') ?? ''
 
   return mode === 'demo'
     ? <DemoSender />
-    : <UPayOrchestrator magicLinkToken={token} recipientEmail={email} />
+    : <UPayOrchestrator magicLinkToken={token} recipientEmail={email} prefilledLoanId={loanId} />
 }
 
 export default App

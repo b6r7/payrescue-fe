@@ -12,16 +12,22 @@ import type { VerifyIdentityResponse, LoanItem } from '../types'
 import { STEP } from '../types'
 import styles from './IdentityEntry.module.css'
 
-const PREFILLED_LOAN_ID = 'LN-20250428-00042'
+// Default for direct-load testing without an email CTA. Real production landing
+// is via `?loan_id=...` on the payment-reminder email link, which overrides this.
+// Affirm charge ARIs are 4-char alphanumeric pairs separated by a dash
+// (e.g. `8DP7-6U76`), not the legacy `LN-YYYYMMDD-NNNNN` format.
+const DEFAULT_LOAN_ID_PLACEHOLDER = '8DP7-6U76'
 
 type Props = {
+  /** Pre-fills the Loan ID input from `?loan_id=...` URL param (email CTA path). */
+  prefilledLoanId?: string
   onOTPRequired: (maskedEmail: string, sessionToken: string) => void
   onDirectToPayment: (sessionToken: string) => void
   onLoanSelect: (sessionToken: string, loans: LoanItem[]) => void
 }
 
-export const IdentityEntry = ({ onOTPRequired, onDirectToPayment, onLoanSelect }: Props) => {
-  const [loanId, setLoanId] = useState(PREFILLED_LOAN_ID)
+export const IdentityEntry = ({ prefilledLoanId = '', onOTPRequired, onDirectToPayment, onLoanSelect }: Props) => {
+  const [loanId, setLoanId] = useState(prefilledLoanId || DEFAULT_LOAN_ID_PLACEHOLDER)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
