@@ -174,7 +174,7 @@ export const IdentityEntry = ({ onOTPRequired, onDirectToPayment }: Props) => {
                 <p className={styles.loanIdHelpTitle}>Check your Affirm confirmation email</p>
                 <p className={styles.loanIdHelpBody}>
                   Your Loan ID is in the subject line or body of any Affirm payment or plan email.
-                  It looks like <code className={styles.loanIdCode}>LN-20250101-00042</code>.
+                  It looks like <code className={styles.loanIdCode}>8DP7-6U76</code>.
                 </p>
               </div>
             </div>
@@ -230,7 +230,7 @@ export const IdentityEntry = ({ onOTPRequired, onDirectToPayment }: Props) => {
                 <TextInput
                   label="Loan ID"
                   labelRight={LoanIdHelpTrigger}
-                  placeholder="LN-20250428-00042"
+                  placeholder="8DP7-6U76"
                   value={loanId}
                   onChange={setLoanId}
                   isRequired
@@ -376,7 +376,7 @@ export const IdentityEntry = ({ onOTPRequired, onDirectToPayment }: Props) => {
                     <p className={styles.loanIdHelpTitle}>Check your Affirm confirmation email</p>
                     <p className={styles.loanIdHelpBody}>
                       Your Loan ID is in the subject line or body of any Affirm payment or plan email.
-                      It looks like <code className={styles.loanIdCode}>LN-20250101-00042</code>.
+                      It looks like <code className={styles.loanIdCode}>8DP7-6U76</code>.
                     </p>
                   </div>
                 </div>
