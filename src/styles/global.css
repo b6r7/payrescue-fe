@@ -1,5 +1,49 @@
 @import './tokens.css';
 
+/* ─── Axiforma for Affirm — self-hosted woff2 ───────────── */
+/* Paths are relative to this file (src/styles/) so Vite     */
+/* hashes and bundles them → relative URLs in the dist CSS,  */
+/* which works both locally and on Quickhost subdirectories.  */
+@font-face {
+  font-family: 'Axiforma for Affirm';
+  src: url('../assets/fonts/AxiformaforAffirm-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Axiforma for Affirm';
+  src: url('../assets/fonts/AxiformaforAffirm-Book.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Axiforma for Affirm';
+  src: url('../assets/fonts/AxiformaforAffirm-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Axiforma for Affirm';
+  src: url('../assets/fonts/AxiformaforAffirm-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Axiforma for Affirm';
+  src: url('../assets/fonts/AxiformaforAffirm-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 *,
 *::before,
 *::after {

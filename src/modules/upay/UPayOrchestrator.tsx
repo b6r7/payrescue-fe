@@ -14,11 +14,14 @@ import { MagicLinkLanding } from './flows/MagicLinkLanding'
 import { TokenExpired } from './flows/TokenExpired'
 import { VerificationForm } from './flows/VerificationForm'
 import { OTPEntry } from './flows/OTPEntry'
+import { LoanSelector } from './flows/LoanSelector'
 import { PaymentInitiated } from './flows/PaymentInitiated'
 import { PaymentConfirmed } from './flows/PaymentConfirmed'
+import { PaymentTransition } from './flows/PaymentTransition'
 import { SessionExpired } from './flows/SessionExpired'
 import { GenericError } from './flows/GenericError'
 import { STEP } from './types'
+import type { LoanItem } from './types'
 
 // Steps ordered so we know which direction to slide
 const STEP_ORDER = [
@@ -27,6 +30,7 @@ const STEP_ORDER = [
   STEP.TOKEN_EXPIRED,
   STEP.VERIFICATION_FORM,
   STEP.OTP_ENTRY,
+  STEP.LOAN_SELECT,
   STEP.PAYMENT_INITIATED,
   STEP.PAYMENT_CONFIRMED,
   STEP.SESSION_EXPIRED,
@@ -39,7 +43,8 @@ type FlowState =
   | { step: typeof STEP.TOKEN_EXPIRED }
   | { step: typeof STEP.VERIFICATION_FORM; loanId: string; maskedEmail: string }
   | { step: typeof STEP.OTP_ENTRY; maskedEmail: string; sessionToken: string }
-  | { step: typeof STEP.PAYMENT_INITIATED; sessionToken: string }
+  | { step: typeof STEP.LOAN_SELECT; sessionToken: string; loans: LoanItem[] }
+  | { step: typeof STEP.PAYMENT_INITIATED; sessionToken: string; selectedMerchant?: string }
   | { step: typeof STEP.PAYMENT_CONFIRMED; amount: string; instrument: string; instrumentType: string; merchant: string; date: string; time: string }
   | { step: typeof STEP.SESSION_EXPIRED }
   | { step: typeof STEP.ERROR; message?: string }
@@ -51,9 +56,13 @@ type Props = {
   recipientEmail?: string
 }
 
+type ConfirmedData = { amount: string; instrument: string; instrumentType: string; merchant: string; date: string; time: string }
+
 export const UPayOrchestrator = ({ magicLinkToken, recipientEmail = '' }: Props) => {
   const [state, setState] = useState<FlowState>({ step: STEP.AFFIRM_SIGNIN })
   const [prevStep, setPrevStep] = useState<string>(STEP.AFFIRM_SIGNIN)
+  const [pendingConfirmed, setPendingConfirmed] = useState<ConfirmedData | null>(null)
+  const [showTransition, setShowTransition] = useState(false)
 
   const goTo = useCallback((next: FlowState) => {
     setPrevStep(state.step)
@@ -64,10 +73,32 @@ export const UPayOrchestrator = ({ magicLinkToken, recipientEmail = '' }: Props)
   const currIdx = STEP_ORDER.indexOf(state.step as typeof STEP_ORDER[number])
   const direction = currIdx >= prevIdx ? 1 : -1
 
+  // iOS-native: direction-aware variants via `custom` prop.
+  // Enter slides in from the leading edge; exit pushes away at ~½ the distance
+  // (parallax depth) while scaling back slightly — exactly what UIKit does.
   const variants = {
-    enter: { opacity: 0, x: direction * 32 },
-    center: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: direction * -24 },
+    enter: (dir: number) => ({
+      x: dir > 0 ? 64 : -64,
+      opacity: 0,
+      scale: 0.97,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      scale: 1,
+    },
+    exit: (dir: number) => ({
+      x: dir > 0 ? -32 : 32,
+      opacity: 0,
+      scale: 0.97,
+    }),
+  }
+
+  // x uses spring (snappy, native), opacity + scale use a short tween
+  const iosTransition = {
+    x:       { type: 'spring' as const, stiffness: 360, damping: 36, mass: 0.85 },
+    opacity: { type: 'tween' as const, duration: 0.2,  ease: 'easeOut' as const },
+    scale:   { type: 'tween' as const, duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] as [number,number,number,number] },
   }
 
   let content: React.ReactNode = null
@@ -106,13 +137,24 @@ export const UPayOrchestrator = ({ magicLinkToken, recipientEmail = '' }: Props)
       content = (
         <VerificationForm
           prefilledLoanId={state.loanId}
-          maskedEmail={state.maskedEmail}
           onOTPRequired={(maskedEmail, sessionToken) =>
             goTo({ step: STEP.OTP_ENTRY, maskedEmail, sessionToken })
           }
           onDirectToPayment={(sessionToken) =>
             goTo({ step: STEP.PAYMENT_INITIATED, sessionToken })
           }
+          onLoanSelect={(sessionToken, loans) =>
+            goTo({ step: STEP.LOAN_SELECT, sessionToken, loans })
+          }
+        />
+      )
+      break
+
+    case STEP.LOAN_SELECT:
+      content = (
+        <LoanSelector
+          loans={state.loans}
+          onSelect={(loan) => goTo({ step: STEP.PAYMENT_INITIATED, sessionToken: state.sessionToken, selectedMerchant: loan.merchant_name })}
         />
       )
       break
@@ -136,7 +178,11 @@ export const UPayOrchestrator = ({ magicLinkToken, recipientEmail = '' }: Props)
       content = (
         <PaymentInitiated
           sessionToken={state.sessionToken}
-          onConfirmed={(data) => goTo({ step: STEP.PAYMENT_CONFIRMED, ...data })}
+          selectedMerchant={state.selectedMerchant}
+          onConfirmed={(data) => {
+            setPendingConfirmed(data)
+            setShowTransition(true)
+          }}
           onSessionExpired={() => goTo({ step: STEP.SESSION_EXPIRED })}
         />
       )
@@ -172,19 +218,37 @@ export const UPayOrchestrator = ({ magicLinkToken, recipientEmail = '' }: Props)
       content = null
   }
 
+  const handleTransitionComplete = useCallback(() => {
+    setShowTransition(false)
+    if (pendingConfirmed) {
+      goTo({ step: STEP.PAYMENT_CONFIRMED, ...pendingConfirmed })
+      setPendingConfirmed(null)
+    }
+  }, [pendingConfirmed, goTo])
+
   return (
-    <AnimatePresence mode="wait" initial={false}>
-      <motion.div
-        key={state.step}
-        variants={variants}
-        initial="enter"
-        animate="center"
-        exit="exit"
-        transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
-        style={{ width: '100%' }}
-      >
-        {content}
-      </motion.div>
-    </AnimatePresence>
+    <div style={{ position: 'relative', width: '100%', maxWidth: 'var(--upay-max-width, 400px)', overflow: 'hidden' }}>
+      {/* popLayout: exiting el becomes position:absolute so enter+exit animate simultaneously — iOS-native */}
+      <AnimatePresence mode="popLayout" initial={false} custom={direction}>
+        <motion.div
+          key={state.step}
+          custom={direction}
+          variants={variants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={iosTransition}
+          style={{ width: '100%', willChange: 'transform, opacity' }}
+        >
+          {content}
+        </motion.div>
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showTransition && (
+          <PaymentTransition onComplete={handleTransitionComplete} />
+        )}
+      </AnimatePresence>
+    </div>
   )
 }

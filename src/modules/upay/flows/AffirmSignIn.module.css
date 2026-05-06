@@ -91,19 +91,6 @@
   color: #b8b8c8;
 }
 
-/* ── Update link ─────────────────────────────────────── */
-.updateLink {
-  font-family: var(--font-family-body);
-  font-size: var(--semantic-size-body-small);      /* body-Small-Link: 14px */
-  font-weight: var(--font-weight-medium);          /* 500 */
-  line-height: var(--lh-body-small);               /* 21px */
-  color: #1a1a6e;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  margin-bottom: 20px;
-}
-
-.updateLink:hover { color: #4a4af4; }
 
 /* ── Button group ────────────────────────────────────── */
 .btnGroup {
@@ -320,21 +307,6 @@
   margin: 0 0 18px;
 }
 
-/* ── Create account link ─────────────────────────────── */
-.createLink {
-  display: block;
-  text-align: center;
-  font-family: var(--font-family-body);
-  font-size: var(--semantic-size-body-small);      /* body-Small-Link: 14px */
-  font-weight: var(--font-weight-medium);          /* 500 */
-  line-height: var(--lh-body-small);               /* 21px */
-  color: #1a1a6e;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  margin-bottom: 28px;
-}
-
-.createLink:hover { color: #4a4af4; }
 
 /* ── Legal disclaimer ────────────────────────────────── */
 .disclaimer {

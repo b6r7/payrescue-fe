@@ -1,7 +1,8 @@
 /**
- * AddCardModal — two-step bottom sheet
+ * AddCardModal — three-step bottom sheet
  * Step 1: Method picker (Bank account / Debit or credit card / ApplePay)
- * Step 2: Card form (Card Number, MM/YY, CVC, ZIP → "Add debit card")
+ * Step 2: Bank sheet (Plaid-style bank picker)
+ * Step 3: Card form (Card Number, MM/YY, CVC, ZIP → "Add debit card")
  */
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
@@ -13,7 +14,19 @@ type Props = {
   onClose: () => void
 }
 
-type View = 'picker' | 'card'
+type View = 'picker' | 'bank' | 'bankForm' | 'bankSuccess' | 'card'
+
+/* ─── Figma bank logo assets (7-day CDN) ─────────────── */
+const LOGO = {
+  wellsFargo:  '/banks/wells-fargo.png',
+  citibank:    '/banks/citibank.png',
+  chase:       '/banks/chase.png',
+  chime:       '/banks/chime.png',
+  tdBank:      '/banks/td-bank.png',
+  usBank:      '/banks/us-bank.png',
+  pnc:         '/banks/pnc.png',
+  capitalOne:  '/banks/capital-one.png',
+} as const
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
@@ -94,6 +107,90 @@ const ApplePayIcon = () => (
   </svg>
 )
 
+/* ─── Bank building icon ─────────────────────────────── */
+const BankBuildingIcon = () => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+    <path d="M6 16.5h28M6 30.5h28M12 16.5v14M20 16.5v14M28 16.5v14M20 9.5L6 16.5h28L20 9.5Z" stroke="#0c0c14" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <rect x="8.5" y="30.5" width="23" height="2.5" rx="1" fill="#0c0c14"/>
+  </svg>
+)
+
+/* ─── Green checkmark badge ──────────────────────────── */
+const CheckBadge = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <circle cx="12" cy="12" r="12" fill="#1DB954"/>
+    <path d="M7 12.5l3.5 3.5 6.5-7" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)
+
+/* ─── Search icon ────────────────────────────────────── */
+const SearchIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+    <circle cx="9" cy="9" r="5.5" stroke="currentColor" strokeWidth="1.4"/>
+    <path d="M13.5 13.5L17 17" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+  </svg>
+)
+
+/* ─── Bank logo tiles ─────────────────────────────────── */
+const WellsFargoLogo = () => (
+  <div className={styles.bankLogoSimple}>
+    <img src={LOGO.wellsFargo} alt="Wells Fargo" className={styles.bankLogoImg} />
+  </div>
+)
+
+const CitibankLogo = () => (
+  <div className={styles.bankLogoSimple}>
+    <img src={LOGO.citibank} alt="Citibank" className={styles.bankLogoImg} />
+  </div>
+)
+
+const ChaseLogo = () => (
+  <div className={styles.bankLogoSimple}>
+    <img src={LOGO.chase} alt="Chase" className={styles.bankLogoImg} />
+  </div>
+)
+
+const ChimeLogo = () => (
+  <div className={styles.bankLogoSimple}>
+    <img src={LOGO.chime} alt="Chime" className={styles.bankLogoImg} />
+  </div>
+)
+
+const TDLogo = () => (
+  <div className={styles.bankLogoSimple}>
+    <img src={LOGO.tdBank} alt="TD Bank" className={styles.bankLogoImg} />
+  </div>
+)
+
+const USBankLogo = () => (
+  <div className={styles.bankLogoSimple}>
+    <img src={LOGO.usBank} alt="US Bank" className={styles.bankLogoImg} />
+  </div>
+)
+
+const PNCLogo = () => (
+  <div className={styles.bankLogoSimple}>
+    <img src={LOGO.pnc} alt="PNC" className={styles.bankLogoImg} />
+  </div>
+)
+
+const CapitalOneLogo = () => (
+  <div className={styles.bankLogoSimple}>
+    <img src={LOGO.capitalOne} alt="Capital One" className={styles.bankLogoImg} />
+  </div>
+)
+
+const BANKS = [
+  { name: 'Wells Fargo',  Logo: WellsFargoLogo },
+  { name: 'Citibank',     Logo: CitibankLogo   },
+  { name: 'Chase',        Logo: ChaseLogo      },
+  { name: 'Chime',        Logo: ChimeLogo      },
+  { name: 'TD Bank',      Logo: TDLogo         },
+  { name: 'US Bank',      Logo: USBankLogo     },
+  { name: 'PNC',          Logo: PNCLogo        },
+  { name: 'Capital One',  Logo: CapitalOneLogo },
+] as const
+
 const CardBrandBadge = ({ brand }: { brand: Brand }) => brand ? (
   <motion.span
     key={brand}
@@ -110,6 +207,38 @@ const CardBrandBadge = ({ brand }: { brand: Brand }) => brand ? (
 /* ─── Component ──────────────────────────────────────── */
 export const AddCardModal = ({ onSave, onClose }: Props) => {
   const [view, setView] = useState<View>('picker')
+
+  /* bank form state */
+  const [bankName, setBankName]         = useState('')
+  const [routingNum, setRoutingNum]     = useState('')
+  const [accountNum, setAccountNum]     = useState('')
+  const [bankErrors, setBankErrors]     = useState<Record<string, string>>({})
+  const [isBankSaving, setIsBankSaving]           = useState(false)
+  const [savedBankInstrument, setSavedBankInstrument] = useState<PaymentInstrument | null>(null)
+
+  const validateBank = (): boolean => {
+    const errs: Record<string, string> = {}
+    if (bankName.trim().length < 2)                       errs.bankName    = 'Enter your full name'
+    if (routingNum.replace(/\D/g, '').length !== 9)       errs.routingNum  = 'Routing number must be 9 digits'
+    if (accountNum.replace(/\D/g, '').length < 4)         errs.accountNum  = 'Enter a valid account number'
+    setBankErrors(errs)
+    return Object.keys(errs).length === 0
+  }
+
+  const handleBankSave = async () => {
+    if (!validateBank()) return
+    setIsBankSaving(true)
+    await new Promise((r) => setTimeout(r, 600))
+    const last4 = accountNum.replace(/\D/g, '').slice(-4)
+    const newInstrument: PaymentInstrument = {
+      ari: `ari:affirm:instrument:us:1:ach_${Date.now()}`,
+      label: `Bank account ••••${last4}`,
+      instrument_type: 'ach',
+    }
+    setIsBankSaving(false)
+    setSavedBankInstrument(newInstrument)
+    setView('bankSuccess')
+  }
 
   /* card form state */
   const [cardNumber, setCardNumber] = useState('')
@@ -216,7 +345,7 @@ export const AddCardModal = ({ onSave, onClose }: Props) => {
                   <button
                     type="button"
                     className={styles.pickerRow}
-                    onClick={() => setView('card')}
+                    onClick={() => setView('bank')}
                     aria-label="Bank account"
                   >
                     <span className={styles.pickerIconWrap} aria-hidden="true"><BankIcon /></span>
@@ -256,7 +385,188 @@ export const AddCardModal = ({ onSave, onClose }: Props) => {
             </motion.div>
           )}
 
-          {/* ── View 2: Card form ─────────────────────────── */}
+          {/* ── View 2: Bank picker ───────────────────────── */}
+          {view === 'bank' && (
+            <motion.div
+              key="bank"
+              initial={{ opacity: 0, x: 18 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 18 }}
+              transition={{ duration: 0.22, ease: EASE }}
+            >
+              <div className={styles.header}>
+                <button type="button" className={styles.backBtn} onClick={() => setView('picker')} aria-label="Go back">
+                  <BackIcon />
+                </button>
+                <h2 className={styles.headerTitle}>Enter your bank details</h2>
+                <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Close">
+                  <CloseIcon />
+                </button>
+              </div>
+
+              <div className={styles.bankContent}>
+                <p className={styles.bankSubtitle}>Securely link your account to Affirm with Plaid.</p>
+
+                <div className={styles.bankContainer}>
+                  {/* Search field */}
+                  <div className={styles.bankSearch}>
+                    <span className={styles.bankSearchIcon}><SearchIcon /></span>
+                    <span className={styles.bankSearchPlaceholder}>Search for your bank</span>
+                  </div>
+
+                  {/* Bank grid */}
+                  <div className={styles.bankGrid}>
+                    {BANKS.map(({ name, Logo }) => (
+                      <button
+                        key={name}
+                        type="button"
+                        className={styles.bankChip}
+                        onClick={() => setView('card')}
+                        aria-label={name}
+                      >
+                        <Logo />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Footer link */}
+                <button
+                  type="button"
+                  className={styles.bankManualLink}
+                  onClick={() => setView('bankForm')}
+                >
+                  Manually enter details instead
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ── View 3: Bank account form ─────────────────── */}
+          {view === 'bankForm' && (
+            <motion.div
+              key="bankForm"
+              initial={{ opacity: 0, x: 18 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 18 }}
+              transition={{ duration: 0.22, ease: EASE }}
+            >
+              <div className={styles.header}>
+                <button type="button" className={styles.backBtn} onClick={() => setView('bank')} aria-label="Go back">
+                  <BackIcon />
+                </button>
+                <h2 className={styles.headerTitle}>Enter your bank details</h2>
+                <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Close">
+                  <CloseIcon />
+                </button>
+              </div>
+
+              <div className={styles.bankFormContent}>
+                <div className={styles.bankFormInputs}>
+                  {/* Name */}
+                  <div className={styles.bankField}>
+                    <input
+                      className={`${styles.bankInput} ${bankErrors.bankName ? styles.bankInputError : ''}`}
+                      type="text"
+                      placeholder="First and last name"
+                      value={bankName}
+                      onChange={(e) => { setBankName(e.target.value); setBankErrors((p) => ({ ...p, bankName: '' })) }}
+                      autoComplete="name"
+                      aria-label="First and last name"
+                    />
+                    {bankErrors.bankName && <span className={styles.bankFieldError}>{bankErrors.bankName}</span>}
+                  </div>
+
+                  {/* Routing */}
+                  <div className={styles.bankField}>
+                    <input
+                      className={`${styles.bankInput} ${bankErrors.routingNum ? styles.bankInputError : ''}`}
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="Routing number"
+                      value={routingNum}
+                      maxLength={9}
+                      onChange={(e) => { setRoutingNum(e.target.value.replace(/\D/g, '')); setBankErrors((p) => ({ ...p, routingNum: '' })) }}
+                      autoComplete="off"
+                      aria-label="Routing number"
+                    />
+                    {bankErrors.routingNum && <span className={styles.bankFieldError}>{bankErrors.routingNum}</span>}
+                  </div>
+
+                  {/* Account */}
+                  <div className={styles.bankField}>
+                    <input
+                      className={`${styles.bankInput} ${bankErrors.accountNum ? styles.bankInputError : ''}`}
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="Account number"
+                      value={accountNum}
+                      maxLength={17}
+                      onChange={(e) => { setAccountNum(e.target.value.replace(/\D/g, '')); setBankErrors((p) => ({ ...p, accountNum: '' })) }}
+                      autoComplete="off"
+                      aria-label="Account number"
+                    />
+                    {bankErrors.accountNum && <span className={styles.bankFieldError}>{bankErrors.accountNum}</span>}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className={styles.bankSaveBtn}
+                  onClick={handleBankSave}
+                  disabled={isBankSaving}
+                  aria-busy={isBankSaving}
+                >
+                  {isBankSaving ? 'Adding…' : 'Add bank account'}
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ── View 4: Bank added success ────────────────── */}
+          {view === 'bankSuccess' && (
+            <motion.div
+              key="bankSuccess"
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              transition={{ duration: 0.25, ease: EASE }}
+            >
+              {/* X close — no back button on success */}
+              <div className={styles.successCloseRow}>
+                <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Close">
+                  <CloseIcon />
+                </button>
+              </div>
+
+              {/* Visual: bank circle + checkmark badge */}
+              <div className={styles.successVisual}>
+                <div className={styles.successIconCircle}>
+                  <BankBuildingIcon />
+                  <span className={styles.successCheckBadge}><CheckBadge /></span>
+                </div>
+              </div>
+
+              {/* Text */}
+              <div className={styles.successContent}>
+                <h2 className={styles.successTitle}>You added a bank account</h2>
+                <p className={styles.successBody}>You can make a payment with this bank account.</p>
+              </div>
+
+              {/* CTA */}
+              <div className={styles.successCta}>
+                <button
+                  type="button"
+                  className={styles.bankSaveBtn}
+                  onClick={() => savedBankInstrument && onSave(savedBankInstrument)}
+                >
+                  Continue to payment
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ── View 5: Card form ─────────────────────────── */}
           {view === 'card' && (
             <motion.div
               key="card"

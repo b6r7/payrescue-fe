@@ -1,0 +1,18 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  min-height: 480px;
+  z-index: 9999;
+  background: var(--components-color-background-primary, #ffffff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video {
+  width: 400px;
+  height: 400px;
+  object-fit: contain;
+  display: block;
+  border-radius: 0;
+}

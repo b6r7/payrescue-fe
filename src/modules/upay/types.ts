@@ -55,6 +55,7 @@ export const STEP = {
   TOKEN_EXPIRED: 'TOKEN_EXPIRED',
   VERIFICATION_FORM: 'VERIFICATION_FORM',
   OTP_ENTRY: 'OTP_ENTRY',
+  LOAN_SELECT: 'LOAN_SELECT',
   PAYMENT_INITIATED: 'PAYMENT_INITIATED',
   PAYMENT_CONFIRMED: 'PAYMENT_CONFIRMED',
   SESSION_EXPIRED: 'SESSION_EXPIRED',
@@ -78,32 +79,28 @@ export interface MagicLinkValidateResponse {
   masked_email?: string
 }
 
-export interface VerifyIdentityRequest {
-  loan_id?: string
-  method: VerificationMethod
-  payer_type: PayerType
-  /** Provided when method is loan_id_email */
-  email?: string
-  /** Provided when method is loan_id_dob; format: MM/DD/YYYY */
-  dob?: string
-  /** Provided when method is ssn_dob_zip; 9-digit SSN */
-  ssn9?: string
-  /** Provided when method is ssn_dob_zip; 5-digit US ZIP */
-  zip?: string
+
+export interface LoanItem {
+  ari: string
+  merchant_name: string
+  remaining_amount: string
+  overdue_amount?: string
+  is_overdue: boolean
+  installment_label?: string
+  autopay_on?: boolean
+  /** 0–1 fill ratio for the progress bar */
+  progress: number
 }
 
 export interface VerifyIdentityResponse {
-  step: typeof STEP.OTP_ENTRY | typeof STEP.PAYMENT_INITIATED | typeof STEP.ERROR
+  step: typeof STEP.OTP_ENTRY | typeof STEP.PAYMENT_INITIATED | typeof STEP.LOAN_SELECT | typeof STEP.ERROR
   /** Ephemeral session token — short-lived, payment-scoped only */
   session_token?: string
   masked_email?: string
+  loans?: LoanItem[]
   error?: { code: string; message: string }
 }
 
-export interface OTPVerifyRequest {
-  otp_code: string
-  session_token: string
-}
 
 export interface OTPVerifyResponse {
   step: typeof STEP.PAYMENT_INITIATED | typeof STEP.ERROR
@@ -130,13 +127,6 @@ export interface PaymentInitiatedResponse {
   }
 }
 
-export interface PaymentConfirmRequest {
-  instrument_ari: string
-  amount: number
-  payment_date: string
-  session_token: string
-  payment_authorization_evidence: string
-}
 
 export interface PaymentConfirmedResponse {
   step: typeof STEP.PAYMENT_CONFIRMED
@@ -148,11 +138,3 @@ export interface PaymentConfirmedResponse {
   }
 }
 
-// ─── Session state ────────────────────────────────────────────────────────────
-
-export interface UPaySession {
-  token: string
-  loanId: string
-  expiresAt: number
-  step: Step
-}

@@ -110,12 +110,6 @@
   opacity: 0.5;
 }
 
-.errorMsg {
-  margin: 0 0 12px;
-  font-size: 13px;
-  color: #d0382a;
-  line-height: 1.4;
-}
 
 .cta {
   width: 100%;

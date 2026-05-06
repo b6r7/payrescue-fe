@@ -3,7 +3,7 @@
  * Matches the Figma "Payment Failure Email Updates" design (node 666:9888).
  * The "Pay now" button is wired to the magic link URL for demo validation.
  */
-export const buildMagicLinkEmail = (magicLinkUrl: string, recipientEmail: string): string => `
+export const buildMagicLinkEmail = (magicLinkUrl: string, _recipientEmail: string): string => `
 <!DOCTYPE html>
 <html lang="en">
 <head>

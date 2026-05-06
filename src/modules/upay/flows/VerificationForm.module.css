@@ -164,12 +164,12 @@
   white-space: nowrap;
 }
 
-/* ── Mobile bottom drawer ─────────────────────────────── */
+/* ── Mobile bottom drawer (portal — renders to document.body) ─── */
 .helpBackdrop {
   position: fixed;
   inset: 0;
-  background: rgba(10, 10, 18, 0.45);
-  z-index: 500;
+  background: rgba(10, 10, 18, 0.5);
+  z-index: 9999;
   display: flex;
   align-items: flex-end;
 }
@@ -178,7 +178,8 @@
   background: var(--components-color-background-primary);
   border-radius: 20px 20px 0 0;
   width: 100%;
-  padding: 0 0 max(24px, env(safe-area-inset-bottom));
+  padding: 0 0 max(28px, env(safe-area-inset-bottom));
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
 }
 
 .helpSheetHandle {
@@ -186,28 +187,30 @@
   height: 4px;
   background: var(--components-color-border-default);
   border-radius: 2px;
-  margin: 12px auto 0;
+  margin: 10px auto 0;
 }
 
 .helpSheetHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px 12px;
+  padding: 16px 20px 8px;
 }
 
 .helpSheetTitle {
   font-family: var(--font-family-body);
-  font-size: var(--semantic-size-body-large);      /* headline-Small equiv: 18px */
-  font-weight: var(--font-weight-semibold);        /* 600 */
-  line-height: var(--lh-headline-small);           /* 24px */
+  font-size: var(--semantic-size-body-large);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--lh-headline-small);
   color: var(--components-color-foreground-primary);
+  margin: 0;
 }
 
 .helpSheetClose {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   width: 32px;
   height: 32px;
   background: var(--components-color-background-secondary);
@@ -221,10 +224,61 @@
 .helpSheetClose:hover { background: var(--components-color-background-tertiary); }
 
 .helpSheetBody {
-  padding: 4px 20px 8px;
+  padding: 8px 16px 4px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 0;
+}
+
+/* ── Info cards inside the drawer ──────────────────────── */
+.helpCard {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--components-color-background-secondary, #f8f8fa);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.helpCardIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  background: var(--components-color-background-primary);
+  border-radius: 10px;
+  color: var(--components-color-foreground-secondary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+}
+
+.helpCardText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.helpCardTitle {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--lh-body-small);
+  color: var(--components-color-foreground-primary);
+  margin: 0;
+}
+
+.helpCardBody {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-small);
+  line-height: var(--lh-body-small);
+  color: var(--components-color-foreground-secondary);
+  margin: 0;
+}
+
+.helpDivider {
+  height: 8px;
+  flex-shrink: 0;
 }
 
 /* ── Secondary outlined payer toggle CTA ─────────────── */
@@ -258,16 +312,6 @@
   outline-offset: 3px;
 }
 
-/* ── Third-party method note ─────────────────────────────── */
-.thirdPartyMethodNote {
-  padding: var(--components-spacing-xs) var(--components-spacing-sm);
-  font-size: var(--semantic-size-body-small);
-  color: var(--components-color-foreground-secondary);
-  background-color: var(--components-color-background-secondary);
-  border: 1px solid var(--components-color-border-default);
-  border-radius: var(--radius-onsurface-default);
-  line-height: 1.4;
-}
 
 .form {
   display: flex;

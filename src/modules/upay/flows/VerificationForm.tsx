@@ -8,11 +8,12 @@
  * Third-party payers use Loan ID + DOB only (no email/SSN access).
  */
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import { FlowCard } from '@/components/layout/FlowCard'
 import { Button, TextInput, Banner, Color, Emphasis, Size } from '@/components/ui'
 import { DatePickerSheet } from './DatePickerSheet'
-import type { PayerType, VerifyIdentityResponse } from '../types'
+import type { PayerType, VerifyIdentityResponse, LoanItem } from '../types'
 import { STEP } from '../types'
 import styles from './VerificationForm.module.css'
 
@@ -22,6 +23,7 @@ type Props = {
   prefilledLoanId?: string
   onOTPRequired: (maskedEmail: string, sessionToken: string) => void
   onDirectToPayment: (sessionToken: string) => void
+  onLoanSelect: (sessionToken: string, loans: LoanItem[]) => void
 }
 
 const useIsMobile = () => {
@@ -53,12 +55,13 @@ export const VerificationForm = ({
   prefilledLoanId = '',
   onOTPRequired,
   onDirectToPayment,
+  onLoanSelect,
 }: Props) => {
   const isMobile = useIsMobile()
   const helpAnchorRef = useRef<HTMLDivElement>(null)
 
   const [path, setPath] = useState<VerificationPath>('email_loan_id')
-  const [payerType, setPayerType] = useState<PayerType>('self')
+  const [payerType, _setPayerType] = useState<PayerType>('self')
   const isThirdParty = payerType === 'third_party'
 
   // Path A fields
@@ -94,10 +97,6 @@ export const VerificationForm = ({
     setError(null)
   }
 
-  const handlePayerTypeChange = (type: PayerType) => {
-    setPayerType(type)
-    setError(null)
-  }
 
   const validate = (): string | null => {
     if (isThirdParty) {
@@ -151,6 +150,8 @@ export const VerificationForm = ({
         onOTPRequired(data.masked_email ?? email, data.session_token)
       } else if (data.step === STEP.PAYMENT_INITIATED && data.session_token) {
         onDirectToPayment(data.session_token)
+      } else if (data.step === STEP.LOAN_SELECT && data.session_token && data.loans) {
+        onLoanSelect(data.session_token, data.loans)
       } else {
         setError(data.error?.message ?? "We couldn't verify your identity. Please check the details and try again.")
       }
@@ -398,74 +399,93 @@ export const VerificationForm = ({
         />
       )}
 
-      {/* Mobile bottom drawer for Loan ID help */}
-      <AnimatePresence>
-        {showLoanIdHelp && isMobile && (
-          <motion.div
-            className={styles.helpBackdrop}
-            onClick={() => setShowLoanIdHelp(false)}
-            role="presentation"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.22 }}
-          >
+      {/* Mobile bottom drawer — rendered via portal so it escapes transformed motion ancestors */}
+      {isMobile && createPortal(
+        <AnimatePresence>
+          {showLoanIdHelp && (
             <motion.div
-              className={styles.helpSheet}
-              onClick={e => e.stopPropagation()}
-              role="dialog"
-              aria-modal="true"
-              aria-label="Where to find your Loan ID"
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', stiffness: 380, damping: 38, mass: 0.9 }}
+              className={styles.helpBackdrop}
+              onClick={() => setShowLoanIdHelp(false)}
+              role="presentation"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.22 }}
             >
-              <div className={styles.helpSheetHandle} aria-hidden="true" />
-              <div className={styles.helpSheetHeader}>
-                <h3 className={styles.helpSheetTitle}>Where do I find my Loan ID?</h3>
-                <button
-                  type="button"
-                  className={styles.helpSheetClose}
-                  onClick={() => setShowLoanIdHelp(false)}
-                  aria-label="Close"
-                >
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                    <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-                </button>
-              </div>
-              <div className={styles.helpSheetBody}>
-                <div className={styles.loanIdHelpRow}>
-                  <span className={styles.loanIdHelpIcon} aria-hidden="true">✉️</span>
-                  <div>
-                    <p className={styles.loanIdHelpTitle}>Check your Affirm confirmation email</p>
-                    <p className={styles.loanIdHelpBody}>
-                      Your Loan ID is in the subject line or body of any Affirm payment or plan email.
-                      It looks like <code className={styles.loanIdCode}>LN-20250101-00042</code>.
-                    </p>
+              <motion.div
+                className={styles.helpSheet}
+                onClick={e => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Where to find your Loan ID"
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', stiffness: 380, damping: 38, mass: 0.9 }}
+              >
+                <div className={styles.helpSheetHandle} aria-hidden="true" />
+                <div className={styles.helpSheetHeader}>
+                  <h3 className={styles.helpSheetTitle}>Where to find your Loan ID</h3>
+                  <button
+                    type="button"
+                    className={styles.helpSheetClose}
+                    onClick={() => setShowLoanIdHelp(false)}
+                    aria-label="Close"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+
+                <div className={styles.helpSheetBody}>
+                  {/* Card row 1 */}
+                  <div className={styles.helpCard}>
+                    <div className={styles.helpCardIconWrap} aria-hidden="true">
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M2.5 5.833A1.667 1.667 0 0 1 4.167 4.167h11.666A1.667 1.667 0 0 1 17.5 5.833v8.334a1.667 1.667 0 0 1-1.667 1.666H4.167A1.667 1.667 0 0 1 2.5 14.167V5.833Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+                        <path d="M2.5 7.5l7.5 4.167L17.5 7.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <div className={styles.helpCardText}>
+                      <p className={styles.helpCardTitle}>Check your Affirm confirmation email</p>
+                      <p className={styles.helpCardBody}>
+                        Your Loan ID is in the subject line or body of any Affirm payment or plan email. It looks like{' '}
+                        <code className={styles.loanIdCode}>LN-20250101-00042</code>.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className={styles.helpDivider} aria-hidden="true" />
+
+                  {/* Card row 2 */}
+                  <div className={styles.helpCard}>
+                    <div className={styles.helpCardIconWrap} aria-hidden="true">
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="9.167" cy="9.167" r="6.25" stroke="currentColor" strokeWidth="1.4"/>
+                        <path d="m16.25 16.25-2.917-2.917" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+                    <div className={styles.helpCardText}>
+                      <p className={styles.helpCardBody}>
+                        Can't find it? Search for <strong>"Payment due"</strong> from <strong>no-reply@affirm.com</strong>.
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className={styles.loanIdHelpRow}>
-                  <span className={styles.loanIdHelpIcon} aria-hidden="true">🔍</span>
-                  <div>
-                    <p className={styles.loanIdHelpBody}>
-                      Can't find it? Search your inbox for <strong>"Your Affirm plan"</strong> or <strong>"Payment due"</strong> from <strong>no-reply@affirm.com</strong>.
-                    </p>
-                  </div>
-                </div>
-              </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   )
 }
 
 // ── Shared icon ───────────────────────────────────────────────────────────────
 const CalendarIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" aria-hidden="true">
-    <path fill="currentColor" fillRule="evenodd" d="M7.292.833a.625.625 0 0 0-1.25 0v.306C5.3.897 4.635 1.06 4.04 1.36a5.625 5.625 0 0 0-2.458 2.458c-.325.638-.472 1.346-.543 2.219C.964 6.899.964 7.93.964 9.307v.723c0 1.377 0 2.448.07 3.27.07.873.218 1.581.543 2.219a5.625 5.625 0 0 0 2.458 2.458c.638.325 1.346.472 2.219.543.822.07 1.853.07 3.23.07h.723c1.377 0 2.448 0 3.27-.07.873-.07 1.581-.218 2.219-.543a5.625 5.625 0 0 0 2.458-2.458c.325-.638.472-1.346.543-2.219.07-.822.07-1.893.07-3.27v-.723c0-1.377 0-2.448-.07-3.27-.07-.873-.218-1.581-.543-2.219A5.625 5.625 0 0 0 15.676 1.36c-.595-.3-1.26-.463-2.002-.521V.833a.625.625 0 0 0-1.25 0v.228a82 82 0 0 0-2.375-.02h-.723a82 82 0 0 0-2.375.02zm5.416 2.5V3.333a.625.625 0 0 1-1.25 0V2.314a64 64 0 0 0-2.291-.022h-.667c-.781 0-1.502 0-2.125.018v1.023a.625.625 0 0 1-1.25 0V2.395c-.533.072-.924.19-1.244.356a4.375 4.375 0 0 0-1.913 1.913c-.22.432-.346.962-.41 1.753C2.19 7.198 2.19 8.24 2.19 9.667v.666c0 1.41 0 2.43.066 3.233.064.791.19 1.321.41 1.753a4.375 4.375 0 0 0 1.913 1.912c.432.22.962.346 1.753.41.803.066 1.823.067 3.233.067h.667c1.41 0 2.43 0 3.233-.066.791-.064 1.321-.19 1.753-.41a4.375 4.375 0 0 0 1.912-1.913c.22-.432.346-.962.41-1.753.066-.803.067-1.823.067-3.233v-.666c0-1.41 0-2.43-.066-3.233-.064-.791-.19-1.321-.41-1.753a4.375 4.375 0 0 0-1.912-1.913c-.32-.166-.711-.284-1.245-.356M5.833 6.042a.625.625 0 0 0 0 1.25h8.334a.625.625 0 0 0 0-1.25zM7.5 10.833a.833.833 0 1 1-1.667 0 .833.833 0 0 1 1.667 0m-.833 4.167a.833.833 0 1 0 0-1.667.833.833 0 0 0 0 1.667m4.166-1.25a.833.833 0 1 1-1.666 0 .833.833 0 0 1 1.666 0m2.5 1.25a.833.833 0 1 0 0-1.667.833.833 0 0 0 0 1.667m-2.5-4.167a.833.833 0 1 1-1.666 0 .833.833 0 0 1 1.666 0m2.5.833a.833.833 0 1 0 0-1.666.833.833 0 0 0 0 1.666" clipRule="evenodd"/>
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path fill="currentColor" fillRule="evenodd" d="M8.75 1a.75.75 0 0 0-1.5 0v.367c-.89.095-1.636.273-2.314.619a6.75 6.75 0 0 0-2.95 2.95c-.39.765-.566 1.615-.652 2.662-.084 1.031-.084 2.317-.084 3.968v.868c0 1.651 0 2.937.084 3.968.086 1.047.262 1.897.652 2.662a6.75 6.75 0 0 0 2.95 2.95c.765.39 1.615.566 2.662.652 1.031.084 2.317.084 3.968.084h.868c1.652 0 2.937 0 3.968-.084 1.047-.086 1.897-.262 2.662-.652a6.75 6.75 0 0 0 2.95-2.95c.39-.765.566-1.615.652-2.662.084-1.031.084-2.317.084-3.968v-.868c0-1.651 0-2.937-.084-3.968-.086-1.047-.262-1.897-.652-2.662a6.75 6.75 0 0 0-2.95-2.95c-.678-.346-1.424-.524-2.314-.62V1a.75.75 0 0 0-1.5 0v.274c-.801-.024-1.73-.024-2.816-.024h-.868c-1.087 0-2.015 0-2.816.024zm6.5 3V2.775a98 98 0 0 0-2.85-.025h-.8c-1.142 0-2.07 0-2.85.025V4a.75.75 0 0 1-1.5 0V2.877c-.7.086-1.205.227-1.633.445a5.25 5.25 0 0 0-2.295 2.295c-.264.518-.415 1.15-.493 2.103-.078.963-.079 2.187-.079 3.88v.8c0 1.692 0 2.917.08 3.88.077.954.228 1.585.492 2.103a5.25 5.25 0 0 0 2.295 2.295c.518.264 1.15.415 2.103.493.963.078 2.187.079 3.88.079h.8c1.692 0 2.917 0 3.88-.08.954-.077 1.585-.228 2.103-.492a5.25 5.25 0 0 0 2.295-2.295c.264-.518.415-1.15.493-2.103.078-.963.079-2.188.079-3.88v-.8c0-1.693 0-2.917-.08-3.88-.077-.954-.228-1.585-.492-2.103a5.25 5.25 0 0 0-2.295-2.295c-.428-.218-.933-.359-1.633-.445V4a.75.75 0 0 1-1.5 0M7 7.25a.75.75 0 0 0 0 1.5h10a.75.75 0 0 0 0-1.5z" clipRule="evenodd"/>
   </svg>
 )

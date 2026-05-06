@@ -148,6 +148,294 @@
   background: var(--components-color-border-secondary, #e5e5e9);
 }
 
+/* ── Bank view ────────────────────────────────────────── */
+.bankContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 16px 32px;
+}
+
+/* body-Medium: Calibre Regular 16/24, secondary color */
+.bankSubtitle {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-medium);     /* 16px */
+  font-weight: var(--font-weight-regular);
+  line-height: var(--lh-body-medium);              /* 24px */
+  color: var(--components-color-foreground-secondary);
+}
+
+/* White rounded container for search + grid */
+.bankContainer {
+  background: #fff;
+  border: 1px solid var(--components-color-border-secondary, #d8d8df);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Search pill */
+.bankSearch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid var(--components-color-border-secondary, #dddee2);
+  border-radius: 24px;
+  padding: 12px 16px;
+}
+
+.bankSearchIcon {
+  display: flex;
+  align-items: center;
+  color: var(--components-color-foreground-secondary);
+  flex-shrink: 0;
+}
+
+.bankSearchPlaceholder {
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-large);      /* 18px */
+  font-weight: var(--font-weight-regular);
+  line-height: 24px;
+  color: var(--components-color-foreground-primary);
+}
+
+/* 2-column responsive bank grid */
+.bankGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* Each bank chip tile */
+.bankChip {
+  background: #fff;
+  border: 1px solid #d9dee1;
+  border-radius: 8px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  overflow: hidden;
+}
+
+.bankChip:hover {
+  background: #f9f9fb;
+  border-color: #b0b8c0;
+}
+
+.bankChip:focus-visible {
+  outline: 2px solid #000049;
+  outline-offset: 2px;
+}
+
+/* "Manually enter details instead" tertiary link */
+.bankManualLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-large);      /* 18px — comp/Large/midImp */
+  font-weight: var(--font-weight-medium);          /* 500 */
+  line-height: 24px;
+  color: var(--components-color-background-interactive-default, #000061);
+  transition: opacity 0.15s;
+}
+
+.bankManualLink:hover { opacity: 0.72; }
+
+/* ── Bank logo components ──────────────────────────────── */
+
+/* Simple single-image logo (Citibank, Chase, Chime, US Bank, PNC) */
+.bankLogoSimple {
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bankLogoImg {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* ── Bank added success sheet ─────────────────────────── */
+.successCloseRow {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 4px;
+}
+
+.successVisual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 0 0;
+}
+
+/* 80px circle with border, contains the bank icon */
+.successIconCircle {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  background: #fff;
+  border: 1px solid #e5e5e9;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Green checkmark badge — bottom-right corner */
+.successCheckBadge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  line-height: 0;
+}
+
+.successContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px 16px 0;
+  text-align: center;
+}
+
+/* headline-Small: Axiforma Bold 18px/24 */
+.successTitle {
+  margin: 0;
+  font-family: var(--font-family-headline);
+  font-size: var(--semantic-size-headline-small);   /* 18px */
+  font-weight: var(--font-weight-bold);
+  line-height: var(--lh-headline-small);             /* 24px */
+  color: #0c0c14;
+}
+
+/* body-Large: Calibre Regular 18px/27 */
+.successBody {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-large);        /* 18px */
+  font-weight: var(--font-weight-regular);
+  line-height: var(--lh-body-large);                 /* 27px */
+  color: #0c0c14;
+}
+
+.successCta {
+  padding: 24px 16px 64px;
+}
+
+/* ── Bank account form ────────────────────────────────── */
+.bankFormContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 0 16px 32px;
+}
+
+.bankFormInputs {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bankField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Affirm text-input: 8px radius, 1px #7e7e8d border, 56px min-height, 16px padding */
+.bankInput {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 56px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #7e7e8d;
+  border-radius: 8px;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-large);  /* 18px */
+  font-weight: var(--font-weight-regular);
+  line-height: 24px;
+  color: var(--components-color-foreground-primary);
+  outline: none;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+
+.bankInput::placeholder {
+  color: var(--components-color-foreground-secondary, #4b4b5c);
+}
+
+.bankInput:focus {
+  border-color: var(--components-color-background-interactive-default, #000049);
+  border-width: 2px;
+  padding: 15px;  /* compensate border width increase */
+}
+
+.bankInputError {
+  border-color: #c0392b;
+}
+
+.bankInputError:focus {
+  border-color: #c0392b;
+}
+
+.bankFieldError {
+  font-family: var(--font-family-body);
+  font-size: 13px;
+  color: #c0392b;
+  padding-left: 2px;
+}
+
+/* Primary "Add bank account" button: navy pill, Calibre Medium 18px */
+.bankSaveBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 24px;
+  background: var(--components-color-background-interactive-default, #000049);
+  border: none;
+  border-radius: 24px;
+  font-family: var(--font-family-body);
+  font-size: var(--semantic-size-body-large);  /* 18px */
+  font-weight: var(--font-weight-medium);
+  line-height: 24px;
+  color: #f7f7f8;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.bankSaveBtn:hover:not(:disabled) {
+  background: #000061;
+}
+
+.bankSaveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* ── Card form ────────────────────────────────────────── */
 .form {
   padding: 4px 16px 0;

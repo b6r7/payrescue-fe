@@ -16,7 +16,6 @@ const prepare = async () => {
         onUnhandledRequest: 'bypass',
         serviceWorker: {
           url: './mockServiceWorker.js',
-          options: { scope: '/' },
         },
       })
     } catch (e) {

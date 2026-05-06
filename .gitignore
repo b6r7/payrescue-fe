@@ -1,1 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build output (kept intentionally for Quickhost uploads — remove if CI builds)
+# dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Misc
+.DS_Store
 .vercel
+payrescue-dist.zip
+
+# Playwright MCP logs / screenshots
+.playwright-mcp/
